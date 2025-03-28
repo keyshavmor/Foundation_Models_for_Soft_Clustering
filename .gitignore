@@ -1,3 +1,19 @@
+# Ignore macOS system files
+.DS_Store
+
+# Ignore all files larger than 100MB (tracked by Git LFS or manual filtering)
+# Git itself can't ignore by file size directly, but you can use this to manually list known large files
+# Alternatively, use Git LFS for proper handling
+
+# If you want to ignore specific file types that are often large:
+*.h5
+*.h5ad
+*.bam
+*.fastq
+*.zip
+*.tar.gz
+*.ipynb_checkpoints/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
