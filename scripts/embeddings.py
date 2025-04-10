@@ -24,12 +24,19 @@ ce = CellEmbedding(
     use_gpu=True,
 )
 
+#data = sc.read(data_path)
+#data = align_dataset(data, ce.gene_order)
+#data = lognorm_counts(data)
+
+
+
 # Process in batches
 batch_size = 1000  # Adjust based on your memory constraints
 n_cells = data.X.shape[0]
 n_batches = int(np.ceil(n_cells / batch_size))
 
 print(f"Min value in data: {data.X.min()}")
+print(f"Min value in RNA: {data.layers['RNA'].min()}")
 
 print(f"Processing {n_cells} cells in {n_batches} batches of size {batch_size}")
 
@@ -45,19 +52,15 @@ for i in range(n_batches):
     # Extract batch data
     batch_indices = list(range(start_idx, end_idx))
     batch_data = data[batch_indices].copy()
+    print(f"Batched Data. {batch_data}")
     
-    # Convert sparse matrix to dense format directly
-    # This handles the sparse matrix issue without using scipy directly
-    batch_data.X = data.layers['log1p_norm'][batch_indices].toarray()
-    
-    # Now we can safely use np.maximum
-    batch_data.X = np.maximum(batch_data.X, 0)
+    batch_data.X = batch_data.layers['RNA']
+    batch_data.layers['counts']=batch_data.layers['RNA']
     
     # Align the batch
     batch_data = align_dataset(batch_data, ce.gene_order)
     
-    # Skip normalization since data is already normalized
-    # batch_data = lognorm_counts(batch_data)
+    batch_data = lognorm_counts(batch_data)
     
     # Get embeddings for this batch
     batch_embeddings = ce.get_embeddings(batch_data.X)
@@ -71,9 +74,13 @@ all_embeddings = np.concatenate(all_embeddings, axis=0)
 
 print(f"All embeddings computed. Shape: {all_embeddings.shape}")
 
+data.obsm["X_scimilarity"] = all_embeddings
+print(f"Data with scimilarity{data}")
+
+output_path = "/home/ndickenmann/Foundation_models_NB/data_with_scimilarity.h5ad"
+data.write(output_path)
+print(f"Data with scimilarity embeddings saved to {output_path}")
+
 # Optional: Save embeddings to file
-np.save(f"/home/ndickenmann/Foundation_models_NB/embeddings/embeddings.npy", all_embeddings)
-print("Embeddings saved to file")
-
-
-embeddings = ce.get_embeddings(data.X)
+#np.save(f"/home/ndickenmann/Foundation_models_NB/embeddings/embeddings.npy", all_embeddings)
+#print("Embeddings saved to file")
