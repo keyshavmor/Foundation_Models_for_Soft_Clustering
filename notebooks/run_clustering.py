@@ -383,11 +383,13 @@ print(f"MeanShift found {num_clusters_meanshift} clusters.")
 print("Stored MeanShift results in embed_adata.obs['Mean_Shift'].")
 
     # Save the newly cluster results
-local_path = './cluster_res'
+output_directory = './cluster_res'
+output_filename = 'clustered_adata.h5ad'
+local_path = os.path.join(output_directory, output_filename)
 print(f"\nSaving embedded AnnData object to: {local_path}")
-output_dir = os.path.dirname(local_path)
+output_dir = os.path.dirname(output_directory)
 if output_dir: # Ensure output_dir is not empty (e.g., saving in current dir)
-    os.makedirs(local_path, exist_ok=True)
+    os.makedirs(output_directory, exist_ok=True)
 
 embed_adata.write(local_path, compression='gzip')
 print("Save complete.")
