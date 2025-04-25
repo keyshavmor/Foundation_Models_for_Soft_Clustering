@@ -139,7 +139,7 @@ bic_scores = []
 aic_scores = []
 silhouette_scores = []
 # Ensure covariance_type is defined before the loop
-covariance_type = 'tied' # 'full', 'tied', 'diag', 'spherical'
+covariance_type = 'spherical' # 'full', 'tied', 'diag', 'spherical'
 
 for n_components in n_components_range:
     print(f"Fitting GMM with {n_components} components...")
@@ -314,8 +314,7 @@ print("\n--- Analysis Complete ---")
 # --- 3a: K-Means Clustering ---
 # Decide on the number of clusters for k-means.
 import pandas as pd
-from sklearn.cluster import KMeans
-from sklearn.cluster import HDBSCAN
+from sklearn.cluster import HDBSCAN,KMeans,estimate_bandwidth
 
 n_clusters_kmeans = n_clusters 
 print(f"Running K-Means with {n_clusters_kmeans} clusters on embeddings...")
@@ -345,7 +344,7 @@ print(f"Found {len(embed_adata.obs['leiden'].cat.categories)} Leiden clusters.")
 
 # --- 3d: HDBSCAN Clustering ---
 print("Running HDBSCAN...")
-min_cluster_size_hdbscan = len(embed_adata) // 1000
+min_cluster_size_hdbscan = max(25, int(np.sqrt(len(embed_adata))))
 print(f"Using min_cluster_size={min_cluster_size_hdbscan} for HDBSCAN.")
 Hdbscan_cluster = HDBSCAN(min_cluster_size=min_cluster_size_hdbscan)
 hdbscan_labels = Hdbscan_cluster.fit_predict(embeddings)
@@ -361,7 +360,7 @@ print("Stored HDBSCAN results in embed_adata.obs['HDBSCAN'].")
 from sklearn.cluster import OPTICS
 print("Running OPTICS...")
 # using HDBSCAN's min_cluster_size
-optics_min_samples = min_cluster_size_hdbscan
+optics_min_samples = 5
 print(f"Using min_samples={optics_min_samples} for OPTICS.")
 optics = OPTICS(min_samples=optics_min_samples)
 optics_labels = optics.fit_predict(embeddings)
@@ -375,7 +374,11 @@ print("Stored OPTICS results in embed_adata.obs['OPTICS'].")
 from sklearn.cluster import MeanShift
 print("Running MeanShift...")
 # MeanShift bandwidth estimation is computationally intensive.
-meanshift = MeanShift(n_jobs=-1) # Use n_jobs=-1 for potential speedup for parallel computation
+est_bandwidth = estimate_bandwidth(embeddings, quantile=0.5, n_samples=max(500, len(embed_adata)//20), n_jobs=-1)
+print(f"Estimated bandwidth: {est_bandwidth:.3f}")
+
+# Use bin_seeding=True for potential speedup during fitting.
+meanshift = MeanShift(bandwidth=est_bandwidth, n_jobs=-1, bin_seeding=True)
 meanshift_labels = meanshift.fit_predict(embeddings)
 embed_adata.obs['Mean_Shift'] = pd.Categorical([f'MeanShift_{c}' for c in meanshift_labels])
 num_clusters_meanshift = len(set(meanshift_labels))
@@ -605,3 +608,19 @@ for rep in ['CancerGPT', 'X_pca', 'X_umap']:
     fig.savefig(f"figures/{rep}_umap.png", dpi=300, bbox_inches="tight")
 
 
+bio_conservation = BioConservation(nmi_ari_cluster_labels_kmeans=False, nmi_ari_cluster_labels_leiden=True)
+batch_correction = BatchCorrection(pcr_comparison=False)
+
+bm = Benchmarker(
+    embed_adata,
+    batch_key="sample",
+    label_key="cell2",
+    embedding_obsm_keys=['CancerGPT', 'X_pca', 'X_umap'],
+    n_jobs=6,
+    bio_conservation_metrics = bio_conservation,
+    batch_correction_metrics=batch_correction,
+)
+
+bm.benchmark()
+
+bm.plot_results_table(min_max_scale=False, save_dir="./figures")
