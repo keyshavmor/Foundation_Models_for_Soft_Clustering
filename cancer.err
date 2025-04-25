@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/cluster/home/maurdu/Foundation_models_NB/notebooks/run_clustering.py", line 106, in <module>
+    sc.tl.leiden(adata, flavor='igraph', n_iterations=2)
+NameError: name 'adata' is not defined

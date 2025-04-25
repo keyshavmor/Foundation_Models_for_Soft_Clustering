@@ -103,10 +103,10 @@ else:
 # %%
 sc.pp.neighbors(embed_adata, use_rep="CancerGPT")
 sc.tl.umap(embed_adata)
-sc.tl.leiden(adata, flavor='igraph', n_iterations=2)
-for feature in ["cell1", "cell2", "fraction", "sample"]:
-    sc.pl.umap(adata, color=feature, show=False, save=f"_harmony_{feature}.png")
-    sc.pl.umap(embed_adata, color=feature, show=False, save=f"_embed_{feature}.png")
+#sc.tl.leiden(adata, flavor='igraph', n_iterations=2)
+#for feature in ["cell1", "cell2", "fraction", "sample"]:
+#    sc.pl.umap(adata, color=feature, show=False, save=f"_harmony_{feature}.png")
+#    sc.pl.umap(embed_adata, color=feature, show=False, save=f"_embed_{feature}.png")
 
 # %%
 # --- GMM Soft Clustering and Entropy Calculation ---
