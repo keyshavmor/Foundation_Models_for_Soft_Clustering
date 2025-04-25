@@ -6,51 +6,51 @@ from model.embedding import embed
 import numpy as np
 
 
-# --- Configuration ---
-# Choose the ground truth label column from embed_adata.obs
-# 'cell1' (coarser) or 'cell2' (finer) are good candidates based on the data exploration cell
-ground_truth_key = 'cell2'
+# # --- Configuration ---
+# # Choose the ground truth label column from embed_adata.obs
+# # 'cell1' (coarser) or 'cell2' (finer) are good candidates based on the data exploration cell
+# ground_truth_key = 'cell2'
 
-# %%
-model_dir = "../assets/"
-adata_path = "../data/NB.bone.Met_preprocessed.h5ad" # INSERT the path to your anndata object here
+# # %%
+# model_dir = "../assets/"
+# adata_path = "../data/NB.bone.Met_preprocessed.h5ad" # INSERT the path to your anndata object here
 
-# 1. Load the full AnnData object
-print(f"Loading full AnnData object from: {adata_path}")
-adata = sc.read_h5ad(adata_path)
-print(f"Successfully loaded. Original shape: {adata.shape}")
-print(adata)
-# --- Subsampling Step ---
-fraction_to_keep = 1.0
-# For reproducibility of the random sampling
-random_seed = 42
-np.random.seed(random_seed)
-
-
-# %%
-### Check the NOR and ADR signatures in the tumor cells ###
-
-# 1) Subset the AnnData to only include Tumor cells
-tumor_adata = adata[adata.obs["cell2"] == "Tumor"].copy()
-
-# 2) Plot the expression of your genes of interest (e.g. "GeneA", "GeneB")
-sc.pl.umap(tumor_adata, color=["CD44", "PHOX2B"])
-
-# 3) Plot the expression of your genes of interest (e.g. "GeneA", "GeneB")
-
-## PHOX2B ADR population
-## CD44 MES
-## TNFRSF1A AND EGFR Bridge to MES
-
-sc.pl.umap(tumor_adata, color=["CD44", "PHOX2B", "TNFRSF1A", "EGFR"])
-
-## NOR genes from https://www.nature.com/articles/s41467-023-38239-5/figures/4
-sc.pl.umap(tumor_adata, color=["TFAP2B", "PHOX2B", "PHOX2A", "GATA2", "GATA3"])
+# # 1. Load the full AnnData object
+# print(f"Loading full AnnData object from: {adata_path}")
+# adata = sc.read_h5ad(adata_path)
+# print(f"Successfully loaded. Original shape: {adata.shape}")
+# print(adata)
+# # --- Subsampling Step ---
+# fraction_to_keep = 1.0
+# # For reproducibility of the random sampling
+# random_seed = 42
+# np.random.seed(random_seed)
 
 
-## MES genes from https://www.nature.com/articles/s41467-023-38239-5/figures/4
+# # %%
+# ### Check the NOR and ADR signatures in the tumor cells ###
 
-sc.pl.umap(tumor_adata, color=["EGR3", "SMAD3", "RUNX2", "CD44", "MEOX2"])
+# # 1) Subset the AnnData to only include Tumor cells
+# tumor_adata = adata[adata.obs["cell2"] == "Tumor"].copy()
+
+# # 2) Plot the expression of your genes of interest (e.g. "GeneA", "GeneB")
+# sc.pl.umap(tumor_adata, color=["CD44", "PHOX2B"])
+
+# # 3) Plot the expression of your genes of interest (e.g. "GeneA", "GeneB")
+
+# ## PHOX2B ADR population
+# ## CD44 MES
+# ## TNFRSF1A AND EGFR Bridge to MES
+
+# sc.pl.umap(tumor_adata, color=["CD44", "PHOX2B", "TNFRSF1A", "EGFR"])
+
+# ## NOR genes from https://www.nature.com/articles/s41467-023-38239-5/figures/4
+# sc.pl.umap(tumor_adata, color=["TFAP2B", "PHOX2B", "PHOX2A", "GATA2", "GATA3"])
+
+
+# ## MES genes from https://www.nature.com/articles/s41467-023-38239-5/figures/4
+
+# sc.pl.umap(tumor_adata, color=["EGR3", "SMAD3", "RUNX2", "CD44", "MEOX2"])
 
 # %%
 import os
