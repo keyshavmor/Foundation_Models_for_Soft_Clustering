@@ -1,0 +1,20 @@
+Traceback (most recent call last):
+  File "/cluster/home/maurdu/Foundation_models_NB/clustering/cancerfnd.py", line 162, in <module>
+    adata = embed(
+  File "/cluster/home/maurdu/Foundation_models_NB/clustering/../model/embedding.py", line 64, in embed
+    sc.pp.highly_variable_genes(
+  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/legacy_api_wrap/__init__.py", line 82, in fn_compatible
+    return fn(*args_all, **kw)
+  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scanpy/preprocessing/_highly_variable_genes.py", line 684, in highly_variable_genes
+    df = _highly_variable_genes_batched(
+  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scanpy/preprocessing/_highly_variable_genes.py", line 450, in _highly_variable_genes_batched
+    hvg = _highly_variable_genes_single_batch(
+  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scanpy/preprocessing/_highly_variable_genes.py", line 310, in _highly_variable_genes_single_batch
+    df["mean_bin"] = _get_mean_bins(df["means"], flavor, n_bins)
+  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scanpy/preprocessing/_highly_variable_genes.py", line 336, in _get_mean_bins
+    return pd.cut(means, bins=bins)
+  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/pandas/core/reshape/tile.py", line 246, in cut
+    bins = _nbins_to_bins(x_idx, bins, right)
+  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/pandas/core/reshape/tile.py", line 361, in _nbins_to_bins
+    raise ValueError("Cannot cut empty array")
+ValueError: Cannot cut empty array

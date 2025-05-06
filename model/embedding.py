@@ -60,8 +60,9 @@ def embed(
 
     adata = adata[:, adata.var["id_in_vocab"] >= 0]
 
+    # Change from cell_ranger to seurat
     sc.pp.highly_variable_genes(
-    adata, n_top_genes=max_length-1, flavor='cell_ranger', batch_key=batch_key)
+    adata, n_top_genes=max_length-1, flavor="seurat", batch_key=batch_key)
     adata = adata[:, adata.var['highly_variable']]
     adata.var["genes"] = adata.var.index
 

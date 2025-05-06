@@ -2,7 +2,7 @@
 
 #SBATCH -n 1
 #SBATCH --time=23:00:00
-#SBATCH --mem-per-cpu=45GB
+#SBATCH --mem-per-cpu=42GB
 #SBATCH --output=cancer.out
 #SBATCH --error=cancer.err
 #SBATCH --open-mode=truncate # truncate overwrites output and error files, append just appends

@@ -4,6 +4,75 @@ sys.path.insert(0, "../")
 import scanpy as sc
 from model.embedding import embed
 import numpy as np
+import os
+
+output_dir = "scanpy_plots"
+os.makedirs(output_dir, exist_ok=True)
+sc.settings.figdir = output_dir
+sc.settings.autosave = True
+sc.settings.autoshow = False # Prevent attempts to show
+
+
+########### ---- DANGER MIGHT BREAK CODE ------ #############
+# --- START: Monkey-patch block to save plots instead of showing ---
+import matplotlib
+# Use Agg backend for non-interactive environments BEFORE importing pyplot
+# This prevents the 'FigureCanvasAgg is non-interactive' warning
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import os
+import warnings
+
+_autosave_plot_dir = "autosaved_plots"
+_autosave_plot_counter = 0
+
+def _save_instead_of_show(*args, **kwargs):
+    """Replaces plt.show() to save the current figure instead."""
+    global _autosave_plot_counter
+    global _autosave_plot_dir
+
+    # Ensure the directory exists
+    if _autosave_plot_counter == 0: # Create dir only on first call
+         try:
+             os.makedirs(_autosave_plot_dir, exist_ok=True)
+             print(f"--- Plot Autosave: Saving plots to directory '{_autosave_plot_dir}' ---")
+         except OSError as e:
+             warnings.warn(f"Could not create plot autosave directory '{_autosave_plot_dir}': {e}")
+             # Fallback: Save to current directory if creation fails
+             _autosave_plot_dir = "."
+
+
+    # Generate filename
+    filename = os.path.join(_autosave_plot_dir, f"autosaved_plot_{_autosave_plot_counter}.png")
+
+    try:
+        # Get the current figure. If none exists, do nothing.
+        fig = plt.gcf()
+        if not fig.axes: # Check if figure has axes (avoids saving empty figures)
+            # print(f"Skipping save for empty figure {_autosave_plot_counter}")
+            return # Do nothing for empty figures
+
+        print(f"Redirecting plt.show(): Saving figure {_autosave_plot_counter} to {filename}")
+        plt.savefig(filename, bbox_inches='tight', dpi=150)
+        _autosave_plot_counter += 1
+        plt.close(fig) # Close the figure after saving to free memory
+    except Exception as e:
+        warnings.warn(f"Failed to autosave plot {_autosave_plot_counter} to {filename}: {e}")
+        # Optionally try to close the figure even if save failed
+        try:
+            plt.close(plt.gcf())
+        except Exception:
+            pass # Ignore errors during cleanup closing
+
+# Apply the patch
+plt.show = _save_instead_of_show
+print("--- Matplotlib plt.show() patched to save figures instead. ---")
+# --- END: Monkey-patch block ---
+########### ---- END: DANGER MIGHT BREAK CODE ------ #############
+
+
+
+
 
 
 # # --- Configuration ---
@@ -144,7 +213,7 @@ covariance_type = 'spherical' # 'full', 'tied', 'diag', 'spherical'
 for n_components in n_components_range:
     print(f"Fitting GMM with {n_components} components...")
     gmm_temp = GaussianMixture(n_components=n_components,
-                               n_init = 5,
+                               n_init = 30,
                                covariance_type=covariance_type,
                                random_state=random_seed)
     gmm_temp.fit(embeddings)
@@ -344,7 +413,7 @@ print(f"Found {len(embed_adata.obs['leiden'].cat.categories)} Leiden clusters.")
 
 # --- 3d: HDBSCAN Clustering ---
 print("Running HDBSCAN...")
-min_cluster_size_hdbscan = max(25, int(np.sqrt(len(embed_adata))))
+min_cluster_size_hdbscan = 5 # all points basically classified as noise using: max(25, int(0.20 * np.sqrt(len(embed_adata))))
 print(f"Using min_cluster_size={min_cluster_size_hdbscan} for HDBSCAN.")
 Hdbscan_cluster = HDBSCAN(min_cluster_size=min_cluster_size_hdbscan)
 hdbscan_labels = Hdbscan_cluster.fit_predict(embeddings)
@@ -372,13 +441,12 @@ print("Stored OPTICS results in embed_adata.obs['OPTICS'].")
 
 # --- 3f: MeanShift Clustering ---
 from sklearn.cluster import MeanShift
+n_samples_for_bw = embeddings.shape[0]    # min(10000, embeddings.shape[0])
+estimated_bandwidth = estimate_bandwidth(embeddings, quantile=0.25, n_samples=n_samples_for_bw, random_state=42, n_jobs=-1)
+print(f"Estimated bandwidth: {estimated_bandwidth:.3f}")
 print("Running MeanShift...")
-# MeanShift bandwidth estimation is computationally intensive.
-est_bandwidth = estimate_bandwidth(embeddings, quantile=0.5, n_samples=max(500, len(embed_adata)//20), n_jobs=-1)
-print(f"Estimated bandwidth: {est_bandwidth:.3f}")
 
-# Use bin_seeding=True for potential speedup during fitting.
-meanshift = MeanShift(bandwidth=est_bandwidth, n_jobs=-1, bin_seeding=True)
+meanshift = MeanShift(n_jobs=-1, bin_seeding=False, max_iter=1000)
 meanshift_labels = meanshift.fit_predict(embeddings)
 embed_adata.obs['Mean_Shift'] = pd.Categorical([f'MeanShift_{c}' for c in meanshift_labels])
 num_clusters_meanshift = len(set(meanshift_labels))
@@ -616,11 +684,11 @@ bm = Benchmarker(
     batch_key="sample",
     label_key="cell2",
     embedding_obsm_keys=['CancerGPT', 'X_pca', 'X_umap'],
-    n_jobs=6,
+    n_jobs=1,
     bio_conservation_metrics = bio_conservation,
     batch_correction_metrics=batch_correction,
 )
 
 bm.benchmark()
 
-bm.plot_results_table(min_max_scale=False, save_dir="./figures")
+bm.plot_results_table(min_max_scale=False, save_dir="./bench_figures")
