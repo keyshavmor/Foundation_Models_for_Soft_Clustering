@@ -1,4 +1,8 @@
 *.code-workspace
+*.sqlite
+*.pkl
+*.pth
+test.ipynb
 
 # Ignore macOS system files
 .DS_Store
