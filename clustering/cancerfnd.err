@@ -1,20 +1,25 @@
+/cluster/home/maurdu/Foundation_models_NB/clustering/cancerfnd.py:160: UserWarning: Ground truth key 'cell_state' not found in source adata.obs. Evaluation might fail.
+  warnings.warn(f"Ground truth key '{data_keys_cfg['ground_truth_key']}' not found in source adata.obs. Evaluation might fail.")
+/cluster/home/maurdu/Foundation_models_NB/clustering/cancerfnd.py:162: UserWarning: Timepoint key 'Stage_Code' not found in source adata.obs. Interpretability analysis might fail.
+  warnings.warn(f"Timepoint key '{data_keys_cfg['timepoint_key']}' not found in source adata.obs. Interpretability analysis might fail.")
+/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/anndata/_core/anndata.py:844: UserWarning: 
+AnnData expects .var.index to contain strings, but got values like:
+    ['ISG15', 'TNFRSF4', 'HES5', nan, nan]
+
+    Inferred to be: categorical
+
+  names = self._prep_dim_index(names, "var")
 Traceback (most recent call last):
-  File "/cluster/home/maurdu/Foundation_models_NB/clustering/cancerfnd.py", line 162, in <module>
+  File "/cluster/home/maurdu/Foundation_models_NB/clustering/cancerfnd.py", line 194, in <module>
     adata = embed(
-  File "/cluster/home/maurdu/Foundation_models_NB/clustering/../model/embedding.py", line 64, in embed
-    sc.pp.highly_variable_genes(
-  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/legacy_api_wrap/__init__.py", line 82, in fn_compatible
-    return fn(*args_all, **kw)
-  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scanpy/preprocessing/_highly_variable_genes.py", line 684, in highly_variable_genes
-    df = _highly_variable_genes_batched(
-  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scanpy/preprocessing/_highly_variable_genes.py", line 450, in _highly_variable_genes_batched
-    hvg = _highly_variable_genes_single_batch(
-  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scanpy/preprocessing/_highly_variable_genes.py", line 310, in _highly_variable_genes_single_batch
-    df["mean_bin"] = _get_mean_bins(df["means"], flavor, n_bins)
-  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scanpy/preprocessing/_highly_variable_genes.py", line 336, in _get_mean_bins
-    return pd.cut(means, bins=bins)
-  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/pandas/core/reshape/tile.py", line 246, in cut
-    bins = _nbins_to_bins(x_idx, bins, right)
-  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/pandas/core/reshape/tile.py", line 361, in _nbins_to_bins
-    raise ValueError("Cannot cut empty array")
-ValueError: Cannot cut empty array
+  File "/cluster/home/maurdu/Foundation_models_NB/clustering/../model/embedding.py", line 56, in embed
+    adata.var["id_in_vocab"] = [
+  File "/cluster/home/maurdu/Foundation_models_NB/clustering/../model/embedding.py", line 57, in <listcomp>
+    vocab[gene] if gene in vocab else -1 for gene in adata.var["genes"]
+  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/torchtext/vocab/vocab.py", line 54, in __contains__
+    return self.vocab.__contains__(token)
+TypeError: __contains__(): incompatible function arguments. The following argument types are supported:
+    1. (self: torchtext._torchtext.Vocab, arg0: str) -> bool
+
+Invoked with: <torchtext._torchtext.Vocab object at 0x149e72695e30>, nan
+srun: error: eu-g9-004-2: task 0: Exited with exit code 1

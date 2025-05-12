@@ -380,12 +380,58 @@ else:
 print("\n--- Analysis Complete ---")
 
 # %%
+from sklearn.cluster import HDBSCAN,KMeans,estimate_bandwidth,SpectralClustering
+from sklearn.metrics.pairwise import rbf_kernel
+from scipy.sparse.csgraph import laplacian as graph_laplacian
+from scipy.linalg import eigh
+
+# ---3: Compute Various Clustering Algorithms. Pre-compute number of clusters using eigen gaps --- 
+# 1. Calculate affinity matrix (RBF kernel) and graph Laplacian with default gamma heuristic 1/n_features for RBF kernel
+gamma_val = 1.0 / embeddings.shape[1] if embeddings.shape[1] > 0 else 1.0
+affinity_mat = rbf_kernel(embeddings, gamma=gamma_val)
+# Using unnormalized Laplacian: L = D - A
+L, _ = graph_laplacian(affinity_mat, return_diag=True) # if copy=False is desired, affinity_mat must be CSR
+
+# 2. Eigengap heuristic to determine the number of clusters
+# Consider up to 'max_k_check' smallest eigenvalues for eigengap analysis
+# Ensure max_k_check >= 1
+max_k_check = min(30, L.shape[0] - 1 if L.shape[0] > 1 else 1)
+# If max_k_check is 1 (e.g. L.shape[0] = 1 or = 2), idx_range will be [0,0] -> 1 eigenvalue
+idx_range_eig = [0, max_k_check - 1 if max_k_check > 0 else 0]
+
+# Ensure L is not too small for eigh to select a range.
+# If max_k_check is 0 (e.g., L.shape[0] is 0 or 1 and max_k_check becomes 0),
+# eigh will error. Handle this edge case.
+if L.shape[0] == 0:
+    print("Warning: Empty affinity matrix. Skipping spectral clustering.")
+    eigenvals = np.array([]) # or handle as an error/NA case
+elif L.shape[0] == 1: # Only one sample, one cluster
+    print("Warning: Only one sample. Setting n_clusters_spectral to 1.")
+    eigenvals = np.array([0]) # Or handle as an error/NA case for gaps
+else:
+    eigenvals = eigh(L, eigvals_only=True, subset_by_index=idx_range_eig)
+
+eigenvals = np.sort(eigenvals) # Ensure sorted
+
+# Calculate gaps between consecutive sorted eigenvalues
+gaps = np.diff(eigenvals)
+# Number of clusters is taken as argmax(gaps) + 1 ( no gaps, e.g. only one eigenvalue fetched, default to 1 cluster initially)
+# Gaps suggesting k clusters (i.e., gaps[k-1]) are multiplied by sqrt(k).
+# The weight used here is np.sqrt(np.arange(len(gaps)) + 1.0).
+n_clusters_spectral = np.argmax(gaps * np.sqrt(np.arange(len(gaps)) + 1.0)) + 1 if len(gaps) > 0 else 1
+
+n_clusters_spectral = max(2, n_clusters_spectral) # Ensure at least 2 clusters
+# Cap n_clusters to not exceed number of samples:
+n_clusters_spectral = min(n_clusters_spectral, L.shape[0] if L.shape[0] > 0 else n_clusters_spectral)
+if L.shape[0] < 2 : n_clusters_spectral = 1 # Handle very small sample sizes (Can be removed??? Error would be better in this case?)
+
+print(f"Eigengap heuristic suggests n_clusters={n_clusters_spectral} for Clustering.")
+
+
 # --- 3a: K-Means Clustering ---
 # Decide on the number of clusters for k-means.
 import pandas as pd
-from sklearn.cluster import HDBSCAN,KMeans,estimate_bandwidth
-
-n_clusters_kmeans = n_clusters 
+n_clusters_kmeans = n_clusters_spectral # n_clusters # n_clusters: number of clusters used by gmm, n_clusters_spectral number of cluster using spectral clustering
 print(f"Running K-Means with {n_clusters_kmeans} clusters on embeddings...")
 kmeans = KMeans(n_clusters=n_clusters_kmeans, random_state=random_seed, n_init=10)
 kmeans_labels = kmeans.fit_predict(embeddings)
@@ -413,9 +459,10 @@ print(f"Found {len(embed_adata.obs['leiden'].cat.categories)} Leiden clusters.")
 
 # --- 3d: HDBSCAN Clustering ---
 print("Running HDBSCAN...")
-min_cluster_size_hdbscan = 5 # all points basically classified as noise using: max(25, int(0.20 * np.sqrt(len(embed_adata))))
+min_cluster_size_hdbscan = 10 # all points basically classified as noise using: max(25, int(0.20 * np.sqrt(len(embed_adata))))
+min_samples_hdbscan = 7
 print(f"Using min_cluster_size={min_cluster_size_hdbscan} for HDBSCAN.")
-Hdbscan_cluster = HDBSCAN(min_cluster_size=min_cluster_size_hdbscan)
+Hdbscan_cluster = HDBSCAN(min_cluster_size=min_cluster_size_hdbscan, min_samples = min_samples_hdbscan)
 hdbscan_labels = Hdbscan_cluster.fit_predict(embeddings)
 # Noise points are labelled -1 by HDBSCAN.
 embed_adata.obs['HDBSCAN'] = pd.Categorical([f'HDBSCAN_{c}' for c in hdbscan_labels])
@@ -428,8 +475,7 @@ print("Stored HDBSCAN results in embed_adata.obs['HDBSCAN'].")
 # --- 3e: OPTICS Clustering ---
 from sklearn.cluster import OPTICS
 print("Running OPTICS...")
-# using HDBSCAN's min_cluster_size
-optics_min_samples = 5
+optics_min_samples = 7
 print(f"Using min_samples={optics_min_samples} for OPTICS.")
 optics = OPTICS(min_samples=optics_min_samples)
 optics_labels = optics.fit_predict(embeddings)
@@ -442,7 +488,7 @@ print("Stored OPTICS results in embed_adata.obs['OPTICS'].")
 # --- 3f: MeanShift Clustering ---
 from sklearn.cluster import MeanShift
 n_samples_for_bw = embeddings.shape[0]    # min(10000, embeddings.shape[0])
-estimated_bandwidth = estimate_bandwidth(embeddings, quantile=0.25, n_samples=n_samples_for_bw, random_state=42, n_jobs=-1)
+estimated_bandwidth = estimate_bandwidth(embeddings, quantile=0.35, n_samples=n_samples_for_bw, random_state=42, n_jobs=-1)
 print(f"Estimated bandwidth: {estimated_bandwidth:.3f}")
 print("Running MeanShift...")
 
@@ -453,7 +499,14 @@ num_clusters_meanshift = len(set(meanshift_labels))
 print(f"MeanShift found {num_clusters_meanshift} clusters.")
 print("Stored MeanShift results in embed_adata.obs['Mean_Shift'].")
 
-    # Save the newly cluster results
+# --- 3g: Spectral Clustering ---
+spectral = SpectralClustering(n_clusters=n_clusters_spectral, affinity='rbf', gamma=gamma_val,
+                            random_state=random_seed, assign_labels='kmeans', n_init=15)
+spectral_labels = spectral.fit_predict(embeddings)
+embed_adata.obs['spectral'] = pd.Categorical([f'Spectral_{c}' for c in spectral_labels])
+print(f"Stored Spectral Clustering results in embed_adata.obs['spectral']")
+
+# Save the newly cluster results
 output_directory = './cluster_res'
 output_filename = 'clustered_adata.h5ad'
 local_path = os.path.join(output_directory, output_filename)
@@ -473,7 +526,7 @@ ground_truth_key = 'cell2'
 
 # Choose the clustering results columns from embed_adata.obs to evaluate
 # The notebook previously added: 'GMM_cluster', 'kmeans', 'louvain', 'leiden'
-clustering_keys = ['GMM_cluster', 'kmeans', 'louvain', 'leiden','HDBSCAN','OPTICS','Mean_Shift']
+clustering_keys = ['GMM_cluster', 'kmeans', 'louvain', 'leiden','HDBSCAN','OPTICS','Mean_Shift','spectral']
 
 
 # %%

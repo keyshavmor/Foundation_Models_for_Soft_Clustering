@@ -25,12 +25,31 @@ except ImportError:
 # Assuming the 'model' package is in the parent directory relative to the script
 # sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))) # If running as script
 sys.path.insert(0, "../") # If running interactively relative to project root
-from model.embedding import embed # Assuming this is the correct import for CancerFoundation
+from model.embedding import embed
 
 # %%
 # --- Configuration Loading ---
 print("--- Loading Configuration ---")
-config_path = 'config_cancerfnd.yaml' # Use the new config file
+import argparse # Import the argparse library
+
+parser = argparse.ArgumentParser(
+    description="The embedding and clustering script that uses a YAML configuration file. You can specify a custom config file path."
+)
+
+# 2. Add an argument for the config file path
+#    - '--config' is the long-form argument (e.g., --config my_config.yaml)
+#    - '-c' is a short-form alias (e.g., -c my_config.yaml)
+#    - `default` specifies the value to use if the argument isn't provided
+#    - `help` provides a description for when the user runs the script with -h or --help
+parser.add_argument(
+    '--config',  # The name of the command-line option
+    '-c',             # A short alias for the option
+    type=str,         # The type of the argument (a string in this case)
+    default='config_sn_tumor.yaml', # Default value if not specified
+    help="Path to the YAML configuration file (e.g., 'config_alternative.yaml')."
+)
+args = parser.parse_args()
+config_path = args.config
 if not os.path.exists(config_path):
     raise FileNotFoundError(f"Configuration file not found: {config_path}")
 with open(config_path, 'r') as f:
@@ -147,38 +166,49 @@ if adata is None:
         actual_timepoints = set(adata_source.obs[data_keys_cfg['timepoint_key']].unique())
         if not expected_timepoints.issubset(actual_timepoints):
              warnings.warn(f"Expected timepoints '{expected_timepoints}' not fully found in column '{data_keys_cfg['timepoint_key']}'. Found: '{actual_timepoints}'.")
+    ## Setup Embedding ##
+    batch_key = data_keys_cfg['batch_key']
+    if batch_key not in adata_source.obs.columns:
+        raise KeyError(f"Batch key '{batch_key}' not found in source adata.obs.")
+        
+    ### START: Cleaning data ###
+    # ── drop MALAT1 (a super‑abundant gene that often skews analyses) ─────
+    if "MALAT1" in adata_source.var_names:
+        adata_source = adata_source[:, adata.var_names != "MALAT1"].copy()
 
+    # ── quick QC filters: keep good cells and reasonably common genes ─────
+    sc.pp.filter_cells(adata_source, min_genes=200)
+    sc.pp.filter_genes(adata_source, min_cells=3)
+    ### END: Cleaning data ###
 
-batch_key = data_keys_cfg['batch_key']
-if batch_key not in adata_source.obs.columns:
-     raise KeyError(f"Batch key '{batch_key}' not found in source adata.obs.")
-input_layer = embed_cfg['input_layer']
-if input_layer is not None:
-    print("input_layer is {}".format(input_layer))
-    adata_source.X = adata_source.layers[input_layer]
-    print("adata_source.X has shape {} and values: {}".format(adata_source.X.shape,adata_source.X))
-
-print("Calling embedding function...")
-adata = embed(
-    adata_or_file=adata_source, # Pass the loaded AnnData object
-    model_dir=paths_cfg['model_dir'],
-    batch_key=data_keys_cfg['batch_key'],
-    batch_size=embed_cfg['batch_size'],
-    # Add any other necessary parameters for your specific 'embed' function
-)
-print("Embedding complete.")
-print(f"Resulting AnnData shape: {adata.shape}")
-
-if model_embedding_key not in adata.obsm_keys():
-    raise ValueError(f"Embedding function did not add the expected key '{model_embedding_key}' to adata.obsm")
-
-print(f"Saving embedded AnnData object to: {output_embedded_path}")
-adata.write(output_embedded_path, compression='gzip')
-print("Save complete.")
+    adata_source.var_names = adata_source.var["gene_name"].values  # make "gene_name" the var index"
+    input_layer = embed_cfg['input_layer']
+    if input_layer is not None:
+        print("input_layer is {}".format(input_layer))
+        adata_source.X = adata_source.layers[input_layer]
+        print("adata_source.X has shape {} and values: {}".format(adata_source.X.shape,adata_source.X))
 
 
 
-print("\n--- Final AnnData Object Info ---")
+    if adata is None:
+        print("Calling embedding function...")
+        adata = embed(
+            adata_or_file=adata_source, # Pass the loaded AnnData object
+            model_dir=paths_cfg['model_dir'],
+            batch_key=data_keys_cfg['batch_key'],
+            batch_size=embed_cfg['batch_size'],
+            # Add any other necessary parameters for your specific 'embed' function
+        )
+        print("Embedding complete.")
+        print(f"Resulting AnnData shape: {adata.shape}")
+        print(f"Saving embedded AnnData object to: {output_embedded_path}")
+        adata.write(output_embedded_path, compression='gzip')
+        print("Save complete.")
+        if model_embedding_key not in adata.obsm_keys():
+            raise ValueError(f"Embedding function did not add the expected key '{model_embedding_key}' to adata.obsm")
+
+
+print("\n--- Embedded AnnData Object Info ---")
 print(adata)
 if model_embedding_key in adata.obsm_keys():
     print(f"Embedding '{model_embedding_key}' shape: {adata.obsm[model_embedding_key].shape}")

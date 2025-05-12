@@ -1,71 +1,72 @@
 --- Loading Configuration ---
-Loaded configuration for: CancerFoundation_NB_Dataset2_Analysis
+Loaded configuration for: CancerFoundation_NB_Dataset3_Analysis
 --- Setting up Paths and Scanpy ---
 Scanpy figure directory set to: results/scanpy_plots
 --- Matplotlib plt.show() patched to save figures instead. ---
 --- Loading/Generating CancerFoundation Embeddings ---
-Embedding file not found or regeneration forced: resources/embeddings/sn_tumor_cells_embed.h5ad
+Embedding file not found or regeneration forced: resources/embeddings/NBatlas_cnv_endothelial_ref_percluster2000hvg.h5ad
 Loading source AnnData and performing embedding...
-Loaded source AnnData from ../data/sn_tumor_cells_NB_hvg.h5ad
-AnnData object with n_obs × n_vars = 205153 × 2000
-    obs: 'orig.ident', 'nCount_RNA', 'nFeature_RNA', 'Stage_Code', 'Tissue', 'Risk_Category', 'First_Avail_TP', 'MYCN_Status', 'ALK_Status', 'TP53_Status', 'Response', 'Vital_Status', 'Age_at_IDX_in_months', 'Treatment', 'First_Avail_Time_Point', 'sample_name', 'biospecimen_id', 'percent.mt', 'seurat_clusters', 'sample_label_wo_prefix', 'S.Score', 'G2M.Score', 'Phase', 'malignancy', 'cell_state', 'RNA_snn_res.0.2', 'MES_Score', 'ADRN_Score', 'MES_ADRN_diff', 'Event', 'organism_ontology_term_id', 'donor_id', 'development_stage_ontology_term_id', 'sex_ontology_term_id', 'disease_ontology_term_id', 'tissue_type', 'cell_type_ontology_term_id', 'assay_ontology_term_id', 'suspension_type', 'tissue_ontology_term_id', 'self_reported_ethnicity_ontology_term_id', 'is_primary_data', 'cell_type', 'assay', 'disease', 'organism', 'sex', 'tissue', 'self_reported_ethnicity', 'development_stage', 'observation_joinid', 'n_genes', 'leiden'
-    var: 'gene_name', 'vf_vst_counts_mean', 'vf_vst_counts_variance', 'vf_vst_counts_variance.expected', 'vf_vst_counts_variance.standardized', 'vf_vst_counts_variable', 'vf_vst_counts_rank', 'var.features', 'var.features.rank', 'ensembl_id_version', 'feature_is_filtered', 'feature_name', 'feature_reference', 'feature_biotype', 'feature_length', 'feature_type', 'n_cells', 'mean', 'std', 'highly_variable', 'highly_variable_rank', 'means', 'variances', 'variances_norm'
-    uns: 'citation', 'hvg', 'leiden', 'neighbors', 'schema_reference', 'schema_version', 'title', 'umap'
-    obsm: 'X_harmony', 'X_pca', 'X_umap'
+Loaded source AnnData from ../data/NBatlas_cnv_endothelial_ref_percluster2000hvg.h5ad
+AnnData object with n_obs × n_vars = 119439 × 2000
+    obs: 'orig.ident', 'nCount_RNA', 'nFeature_RNA', 'percent_mito', 'Study', 'Assay', 'Platform', 'Sample', 'Patient_No', 'Timepoint', 'INSS_stage', 'MYCN_amplification', 'Gender', 'Risk', 'Cell_condition', 'Cell_type', 'cell', 'n_genes', 'leiden', 'cnv_leiden', 'cnv_score', 'cnv_status'
+    var: 'hgnc_symbol', 'ensembl_gene_id', 'gene_biotype', 'n_cells', 'mean', 'std', 'chromosome', 'start', 'end', 'gene_id', 'gene_name', 'highly_variable', 'highly_variable_rank', 'means', 'variances', 'variances_norm'
+    uns: 'Cell_type_colors', 'INSS_stage_colors', 'Sample_colors', 'Study_colors', 'cnv', 'cnv_leiden', 'cnv_leiden_colors', 'cnv_neighbors', 'dendrogram_cnv_leiden', 'hvg', 'leiden', 'neighbors', 'pca', 'umap'
+    obsm: 'X_cnv', 'X_cnv_pca', 'X_cnv_umap', 'X_pca', 'X_pca_harmony', 'X_umap', 'scvi_umap'
+    varm: 'PCs'
     layers: 'RNA', 'log1p_norm'
-    obsp: 'connectivities', 'distances'
-Batch key is donor_id
+    obsp: 'cnv_neighbors_connectivities', 'cnv_neighbors_distances', 'connectivities', 'distances'
+Batch key is Sample
 input_layer is RNA
-adata_source.X has shape (205153, 2000) and values:   (0, 19)	1.5862730792218407
-  (0, 36)	2.635600661900774
-  (0, 41)	0.8308064876665291
-  (0, 50)	0.8308064876665291
-  (0, 55)	2.53817259033019
-  (0, 58)	1.5862730792218407
-  (0, 61)	1.2782463593804103
-  (0, 62)	2.01167716944624
-  (0, 63)	1.2782463593804103
-  (0, 64)	0.8308064876665291
-  (0, 67)	3.7172297498587055
-  (0, 69)	0.8308064876665291
-  (0, 70)	1.2782463593804103
-  (0, 71)	0.8308064876665291
-  (0, 78)	1.2782463593804103
-  (0, 151)	0.8308064876665291
-  (0, 164)	0.8308064876665291
-  (0, 193)	2.53817259033019
-  (0, 198)	1.2782463593804103
-  (0, 200)	2.7243735287357786
-  (0, 201)	1.8214276632576545
-  (0, 204)	2.01167716944624
-  (0, 205)	3.4683592235507934
-  (0, 207)	0.8308064876665291
-  (0, 210)	0.8308064876665291
+adata_source.X has shape (6781, 1476) and values:   (0, 74)	1.0
+  (0, 114)	1.0
+  (0, 153)	1.0
+  (0, 229)	1.0
+  (0, 248)	1.0
+  (0, 429)	1.0
+  (0, 508)	1.0
+  (0, 552)	1.0
+  (0, 648)	2.0
+  (0, 852)	1.0
+  (0, 853)	1.0
+  (0, 875)	2.0
+  (0, 996)	22.0
+  (1, 48)	1.0
+  (1, 74)	6.0
+  (1, 99)	1.0
+  (1, 108)	5.0
+  (1, 110)	3.0
+  (1, 114)	3.0
+  (1, 116)	1.0
+  (1, 127)	4.0
+  (1, 139)	1.0
+  (1, 165)	1.0
+  (1, 166)	1.0
+  (1, 168)	1.0
   :	:
-  (205152, 1803)	1.415883455376462
-  (205152, 1805)	1.415883455376462
-  (205152, 1806)	1.415883455376462
-  (205152, 1810)	1.415883455376462
-  (205152, 1813)	1.415883455376462
-  (205152, 1814)	1.415883455376462
-  (205152, 1833)	1.415883455376462
-  (205152, 1838)	1.415883455376462
-  (205152, 1882)	1.415883455376462
-  (205152, 1893)	1.415883455376462
-  (205152, 1901)	1.415883455376462
-  (205152, 1938)	1.9796556823205058
-  (205152, 1949)	1.415883455376462
-  (205152, 1985)	2.3379883766200438
-  (205152, 1986)	1.9796556823205058
-  (205152, 1989)	2.3379883766200438
-  (205152, 1990)	1.9796556823205058
-  (205152, 1991)	2.9816713215748876
-  (205152, 1993)	2.3379883766200438
-  (205152, 1994)	3.4720052111135877
-  (205152, 1995)	1.9796556823205058
-  (205152, 1996)	1.415883455376462
-  (205152, 1997)	1.9796556823205058
-  (205152, 1998)	1.415883455376462
-  (205152, 1999)	2.8094402865210615
+  (6780, 421)	2.0
+  (6780, 475)	2.0
+  (6780, 489)	3.0
+  (6780, 500)	1.0
+  (6780, 508)	1.0
+  (6780, 511)	1.0
+  (6780, 517)	1.0
+  (6780, 520)	2.0
+  (6780, 521)	2.0
+  (6780, 537)	3.0
+  (6780, 552)	1.0
+  (6780, 643)	1.0
+  (6780, 647)	1.0
+  (6780, 685)	1.0
+  (6780, 687)	1.0
+  (6780, 757)	2.0
+  (6780, 776)	1.0
+  (6780, 812)	3.0
+  (6780, 816)	8.0
+  (6780, 852)	1.0
+  (6780, 891)	4.0
+  (6780, 920)	5.0
+  (6780, 945)	18.0
+  (6780, 955)	2.0
+  (6780, 996)	151.0
 Calling embedding function...
 WARNING: CUDA is not available. Using CPU instead.

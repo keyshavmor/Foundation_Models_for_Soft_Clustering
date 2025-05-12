@@ -4,15 +4,13 @@ WARNING: saving figure to file scanpy_plots/X_umap.pdf
 /cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scanpy/plotting/_tools/scatterplots.py:468: UserWarning: Adding colorbar to a different Figure <Figure size 1300x500 with 3 Axes> than <Figure size 400x400 with 0 Axes> which fig.colorbar is called on.
   plt.colorbar(
 WARNING: saving figure to file scanpy_plots/X_umap.pdf
-/cluster/home/maurdu/Foundation_models_NB/notebooks/run_clustering.py:408: FutureWarning: In the future, the default backend for leiden will be igraph instead of leidenalg.
+/cluster/home/maurdu/Foundation_models_NB/notebooks/run_clustering.py:454: FutureWarning: In the future, the default backend for leiden will be igraph instead of leidenalg.
 
  To achieve the future defaults please pass: flavor="igraph" and n_iterations=2.  directed must also be False to work with igraph's implementation.
   sc.tl.leiden(embed_adata, random_state=random_seed, key_added='leiden') # Default resolution=1.0
-/cluster/home/maurdu/Foundation_models_NB/notebooks/run_clustering.py:60: UserWarning: Failed to autosave plot 1 to autosaved_plots/autosaved_plot_1.png: Image size of 83429x1800 pixels is too large. It must be less than 2^16 in each direction.
-  warnings.warn(f"Failed to autosave plot {_autosave_plot_counter} to {filename}: {e}")
-/cluster/home/maurdu/Foundation_models_NB/notebooks/run_clustering.py:629: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+/cluster/home/maurdu/Foundation_models_NB/notebooks/run_clustering.py:685: FutureWarning: The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
   median_entropy = entropy_df.groupby(ground_truth_key)['GMM_entropy'].median().sort_values()
-/cluster/home/maurdu/Foundation_models_NB/notebooks/run_clustering.py:633: FutureWarning: 
+/cluster/home/maurdu/Foundation_models_NB/notebooks/run_clustering.py:689: FutureWarning: 
 
 Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `y` variable to `hue` and set `legend=False` for the same effect.
 
@@ -22,22 +20,22 @@ WARNING: Length of palette colors is smaller than the number of categories (pale
 WARNING: Length of palette colors is smaller than the number of categories (palette length: 20, categories length: 30. Some categories will have the same color.
 /cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scanpy/preprocessing/_pca.py:377: FutureWarning: Argument `use_highly_variable` is deprecated, consider using the mask argument. Use_highly_variable=True can be called through mask_var="highly_variable". Use_highly_variable=False can be called through mask_var=None
   warn(msg, FutureWarning)
-Computing neighbors:   0%|          | 0/3 [00:00<?, ?it/s]Computing neighbors:  33%|███▎      | 1/3 [00:34<01:08, 34.49s/it]Computing neighbors:  67%|██████▋   | 2/3 [01:14<00:37, 37.49s/it]Computing neighbors: 100%|██████████| 3/3 [01:38<00:00, 31.61s/it]Computing neighbors: 100%|██████████| 3/3 [01:38<00:00, 32.90s/it]
+Computing neighbors:   0%|          | 0/3 [00:00<?, ?it/s]Computing neighbors:  33%|███▎      | 1/3 [00:21<00:43, 21.82s/it]Computing neighbors:  67%|██████▋   | 2/3 [00:47<00:23, 23.82s/it]Computing neighbors: 100%|██████████| 3/3 [01:03<00:00, 20.26s/it]Computing neighbors: 100%|██████████| 3/3 [01:03<00:00, 21.02s/it]
 Embeddings:   0%|[32m          [0m| 0/3 [00:00<?, ?it/s]
 Metrics:   0%|[34m          [0m| 0/10 [00:00<?, ?it/s][A
 Metrics:   0%|[34m          [0m| 0/10 [00:00<?, ?it/s, Bio conservation: isolated_labels][A
-Metrics:  10%|[34m█         [0m| 1/10 [08:15<1:14:19, 495.48s/it, Bio conservation: isolated_labels][A
-Metrics:  10%|[34m█         [0m| 1/10 [08:15<1:14:19, 495.48s/it, Bio conservation: nmi_ari_cluster_labels_leiden][A
-Metrics:  20%|[34m██        [0m| 2/10 [08:36<28:50, 216.33s/it, Bio conservation: nmi_ari_cluster_labels_leiden]  [A
-Metrics:  20%|[34m██        [0m| 2/10 [08:36<28:50, 216.33s/it, Bio conservation: silhouette_label]             [A
-Metrics:  30%|[34m███       [0m| 3/10 [15:13<34:51, 298.81s/it, Bio conservation: silhouette_label][A
-Metrics:  30%|[34m███       [0m| 3/10 [15:13<34:51, 298.81s/it, Bio conservation: clisi_knn]       [A
-Metrics:  40%|[34m████      [0m| 4/10 [15:15<18:10, 181.72s/it, Bio conservation: clisi_knn][A
-Metrics:  40%|[34m████      [0m| 4/10 [15:15<18:10, 181.72s/it, Batch correction: silhouette_batch][A
-Metrics:  50%|[34m█████     [0m| 5/10 [16:00<11:01, 132.29s/it, Batch correction: silhouette_batch][A
-Metrics:  50%|[34m█████     [0m| 5/10 [16:00<11:01, 132.29s/it, Batch correction: ilisi_knn]       [A
-Metrics:  60%|[34m██████    [0m| 6/10 [16:01<05:50, 87.74s/it, Batch correction: ilisi_knn] [A
-Metrics:  60%|[34m██████    [0m| 6/10 [16:01<05:50, 87.74s/it, Batch correction: kbet_per_label][A/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scib_metrics/_kbet.py:181: FutureWarning: pandas.value_counts is deprecated and will be removed in a future version. Use pd.Series(obj).value_counts() instead.
+Metrics:  10%|[34m█         [0m| 1/10 [05:08<46:17, 308.66s/it, Bio conservation: isolated_labels][A
+Metrics:  10%|[34m█         [0m| 1/10 [05:08<46:17, 308.66s/it, Bio conservation: nmi_ari_cluster_labels_leiden][A
+Metrics:  20%|[34m██        [0m| 2/10 [05:23<18:06, 135.77s/it, Bio conservation: nmi_ari_cluster_labels_leiden][A
+Metrics:  20%|[34m██        [0m| 2/10 [05:23<18:06, 135.77s/it, Bio conservation: silhouette_label]             [A
+Metrics:  30%|[34m███       [0m| 3/10 [10:43<25:38, 219.73s/it, Bio conservation: silhouette_label][A
+Metrics:  30%|[34m███       [0m| 3/10 [10:43<25:38, 219.73s/it, Bio conservation: clisi_knn]       [A
+Metrics:  40%|[34m████      [0m| 4/10 [10:44<13:22, 133.67s/it, Bio conservation: clisi_knn][A
+Metrics:  40%|[34m████      [0m| 4/10 [10:44<13:22, 133.67s/it, Batch correction: silhouette_batch][A
+Metrics:  50%|[34m█████     [0m| 5/10 [11:22<08:15, 99.15s/it, Batch correction: silhouette_batch] [A
+Metrics:  50%|[34m█████     [0m| 5/10 [11:22<08:15, 99.15s/it, Batch correction: ilisi_knn]       [A
+Metrics:  60%|[34m██████    [0m| 6/10 [11:23<04:23, 65.77s/it, Batch correction: ilisi_knn][A
+Metrics:  60%|[34m██████    [0m| 6/10 [11:23<04:23, 65.77s/it, Batch correction: kbet_per_label][A/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scib_metrics/_kbet.py:181: FutureWarning: pandas.value_counts is deprecated and will be removed in a future version. Use pd.Series(obj).value_counts() instead.
   comp_size = pd.value_counts(labs)
 /cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scib_metrics/_kbet.py:181: FutureWarning: pandas.value_counts is deprecated and will be removed in a future version. Use pd.Series(obj).value_counts() instead.
   comp_size = pd.value_counts(labs)
@@ -86,26 +84,26 @@ WARNING: Length of palette colors is smaller than the number of categories (pale
 /cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scib_metrics/_kbet.py:181: FutureWarning: pandas.value_counts is deprecated and will be removed in a future version. Use pd.Series(obj).value_counts() instead.
   comp_size = pd.value_counts(labs)
 
-Metrics:  70%|[34m███████   [0m| 7/10 [16:34<03:29, 69.80s/it, Batch correction: kbet_per_label][A
-Metrics:  70%|[34m███████   [0m| 7/10 [16:34<03:29, 69.80s/it, Batch correction: graph_connectivity][A/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scib_metrics/_graph_connectivity.py:30: FutureWarning: pandas.value_counts is deprecated and will be removed in a future version. Use pd.Series(obj).value_counts() instead.
+Metrics:  70%|[34m███████   [0m| 7/10 [11:46<02:34, 51.65s/it, Batch correction: kbet_per_label][A
+Metrics:  70%|[34m███████   [0m| 7/10 [11:46<02:34, 51.65s/it, Batch correction: graph_connectivity][A/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scib_metrics/_graph_connectivity.py:30: FutureWarning: pandas.value_counts is deprecated and will be removed in a future version. Use pd.Series(obj).value_counts() instead.
   tab = pd.value_counts(comps)
 
-Metrics:  80%|[34m████████  [0m| 8/10 [16:34<01:35, 47.63s/it, Batch correction: graph_connectivity][AEmbeddings:  33%|[32m███▎      [0m| 1/3 [16:34<33:09, 994.51s/it]
+Metrics:  80%|[34m████████  [0m| 8/10 [11:46<01:10, 35.24s/it, Batch correction: graph_connectivity][AEmbeddings:  33%|[32m███▎      [0m| 1/3 [11:46<23:32, 706.39s/it]
 Metrics:   0%|[34m          [0m| 0/10 [00:00<?, ?it/s][A
                                                                                              [A
 Metrics:   0%|[34m          [0m| 0/10 [00:00<?, ?it/s, Bio conservation: isolated_labels][A
-Metrics:  10%|[34m█         [0m| 1/10 [02:06<19:01, 126.88s/it, Bio conservation: isolated_labels][A
-Metrics:  10%|[34m█         [0m| 1/10 [02:06<19:01, 126.88s/it, Bio conservation: nmi_ari_cluster_labels_leiden][A
-Metrics:  20%|[34m██        [0m| 2/10 [02:25<08:24, 63.05s/it, Bio conservation: nmi_ari_cluster_labels_leiden] [A
-Metrics:  20%|[34m██        [0m| 2/10 [02:25<08:24, 63.05s/it, Bio conservation: silhouette_label]             [A
-Metrics:  30%|[34m███       [0m| 3/10 [04:31<10:44, 92.11s/it, Bio conservation: silhouette_label][A
-Metrics:  30%|[34m███       [0m| 3/10 [04:31<10:44, 92.11s/it, Bio conservation: clisi_knn]       [A
-Metrics:  40%|[34m████      [0m| 4/10 [04:33<05:37, 56.21s/it, Bio conservation: clisi_knn][A
-Metrics:  40%|[34m████      [0m| 4/10 [04:33<05:37, 56.21s/it, Batch correction: silhouette_batch][A
-Metrics:  50%|[34m█████     [0m| 5/10 [04:44<03:19, 39.96s/it, Batch correction: silhouette_batch][A
-Metrics:  50%|[34m█████     [0m| 5/10 [04:44<03:19, 39.96s/it, Batch correction: ilisi_knn]       [A
-Metrics:  60%|[34m██████    [0m| 6/10 [04:45<01:47, 26.77s/it, Batch correction: ilisi_knn][A
-Metrics:  60%|[34m██████    [0m| 6/10 [04:45<01:47, 26.77s/it, Batch correction: kbet_per_label][A/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scib_metrics/_kbet.py:181: FutureWarning: pandas.value_counts is deprecated and will be removed in a future version. Use pd.Series(obj).value_counts() instead.
+Metrics:  10%|[34m█         [0m| 1/10 [01:50<16:33, 110.43s/it, Bio conservation: isolated_labels][A
+Metrics:  10%|[34m█         [0m| 1/10 [01:50<16:33, 110.43s/it, Bio conservation: nmi_ari_cluster_labels_leiden][A
+Metrics:  20%|[34m██        [0m| 2/10 [02:05<07:12, 54.09s/it, Bio conservation: nmi_ari_cluster_labels_leiden] [A
+Metrics:  20%|[34m██        [0m| 2/10 [02:05<07:12, 54.09s/it, Bio conservation: silhouette_label]             [A
+Metrics:  30%|[34m███       [0m| 3/10 [03:55<09:17, 79.62s/it, Bio conservation: silhouette_label][A
+Metrics:  30%|[34m███       [0m| 3/10 [03:55<09:17, 79.62s/it, Bio conservation: clisi_knn]       [A
+Metrics:  40%|[34m████      [0m| 4/10 [03:55<04:51, 48.55s/it, Bio conservation: clisi_knn][A
+Metrics:  40%|[34m████      [0m| 4/10 [03:55<04:51, 48.55s/it, Batch correction: silhouette_batch][A
+Metrics:  50%|[34m█████     [0m| 5/10 [04:05<02:51, 34.34s/it, Batch correction: silhouette_batch][A
+Metrics:  50%|[34m█████     [0m| 5/10 [04:05<02:51, 34.34s/it, Batch correction: ilisi_knn]       [A
+Metrics:  60%|[34m██████    [0m| 6/10 [04:06<01:31, 22.99s/it, Batch correction: ilisi_knn][A
+Metrics:  60%|[34m██████    [0m| 6/10 [04:06<01:31, 22.99s/it, Batch correction: kbet_per_label][A/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scib_metrics/_kbet.py:181: FutureWarning: pandas.value_counts is deprecated and will be removed in a future version. Use pd.Series(obj).value_counts() instead.
   comp_size = pd.value_counts(labs)
 /cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scib_metrics/_kbet.py:181: FutureWarning: pandas.value_counts is deprecated and will be removed in a future version. Use pd.Series(obj).value_counts() instead.
   comp_size = pd.value_counts(labs)
@@ -162,26 +160,26 @@ WARNING: Length of palette colors is smaller than the number of categories (pale
 /cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scib_metrics/_kbet.py:181: FutureWarning: pandas.value_counts is deprecated and will be removed in a future version. Use pd.Series(obj).value_counts() instead.
   comp_size = pd.value_counts(labs)
 
-Metrics:  70%|[34m███████   [0m| 7/10 [05:19<01:27, 29.19s/it, Batch correction: kbet_per_label][A
-Metrics:  70%|[34m███████   [0m| 7/10 [05:19<01:27, 29.19s/it, Batch correction: graph_connectivity][A/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scib_metrics/_graph_connectivity.py:30: FutureWarning: pandas.value_counts is deprecated and will be removed in a future version. Use pd.Series(obj).value_counts() instead.
+Metrics:  70%|[34m███████   [0m| 7/10 [04:29<01:09, 23.05s/it, Batch correction: kbet_per_label][A
+Metrics:  70%|[34m███████   [0m| 7/10 [04:29<01:09, 23.05s/it, Batch correction: graph_connectivity][A/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scib_metrics/_graph_connectivity.py:30: FutureWarning: pandas.value_counts is deprecated and will be removed in a future version. Use pd.Series(obj).value_counts() instead.
   tab = pd.value_counts(comps)
 
-Metrics:  80%|[34m████████  [0m| 8/10 [05:19<00:39, 19.95s/it, Batch correction: graph_connectivity][AEmbeddings:  67%|[32m██████▋   [0m| 2/3 [21:54<09:57, 597.61s/it]
+Metrics:  80%|[34m████████  [0m| 8/10 [04:29<00:31, 15.75s/it, Batch correction: graph_connectivity][AEmbeddings:  67%|[32m██████▋   [0m| 2/3 [16:15<07:29, 449.33s/it]
 Metrics:   0%|[34m          [0m| 0/10 [00:00<?, ?it/s][A
                                                                                              [A
 Metrics:   0%|[34m          [0m| 0/10 [00:00<?, ?it/s, Bio conservation: isolated_labels][A
-Metrics:  10%|[34m█         [0m| 1/10 [00:06<01:02,  6.93s/it, Bio conservation: isolated_labels][A
-Metrics:  10%|[34m█         [0m| 1/10 [00:06<01:02,  6.93s/it, Bio conservation: nmi_ari_cluster_labels_leiden][A
-Metrics:  20%|[34m██        [0m| 2/10 [00:17<01:12,  9.06s/it, Bio conservation: nmi_ari_cluster_labels_leiden][A
-Metrics:  20%|[34m██        [0m| 2/10 [00:17<01:12,  9.06s/it, Bio conservation: silhouette_label]             [A
-Metrics:  30%|[34m███       [0m| 3/10 [00:24<00:56,  8.13s/it, Bio conservation: silhouette_label][A
-Metrics:  30%|[34m███       [0m| 3/10 [00:24<00:56,  8.13s/it, Bio conservation: clisi_knn]       [A
-Metrics:  40%|[34m████      [0m| 4/10 [00:25<00:30,  5.15s/it, Bio conservation: clisi_knn][A
-Metrics:  40%|[34m████      [0m| 4/10 [00:25<00:30,  5.15s/it, Batch correction: silhouette_batch][A
-Metrics:  50%|[34m█████     [0m| 5/10 [00:27<00:20,  4.14s/it, Batch correction: silhouette_batch][A
-Metrics:  50%|[34m█████     [0m| 5/10 [00:27<00:20,  4.14s/it, Batch correction: ilisi_knn]       [A
-Metrics:  60%|[34m██████    [0m| 6/10 [00:28<00:11,  2.93s/it, Batch correction: ilisi_knn][A
-Metrics:  60%|[34m██████    [0m| 6/10 [00:28<00:11,  2.93s/it, Batch correction: kbet_per_label][A/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scib_metrics/_kbet.py:181: FutureWarning: pandas.value_counts is deprecated and will be removed in a future version. Use pd.Series(obj).value_counts() instead.
+Metrics:  10%|[34m█         [0m| 1/10 [00:05<00:48,  5.40s/it, Bio conservation: isolated_labels][A
+Metrics:  10%|[34m█         [0m| 1/10 [00:05<00:48,  5.40s/it, Bio conservation: nmi_ari_cluster_labels_leiden][A
+Metrics:  20%|[34m██        [0m| 2/10 [00:13<00:54,  6.85s/it, Bio conservation: nmi_ari_cluster_labels_leiden][A
+Metrics:  20%|[34m██        [0m| 2/10 [00:13<00:54,  6.85s/it, Bio conservation: silhouette_label]             [A
+Metrics:  30%|[34m███       [0m| 3/10 [00:18<00:43,  6.15s/it, Bio conservation: silhouette_label][A
+Metrics:  30%|[34m███       [0m| 3/10 [00:18<00:43,  6.15s/it, Bio conservation: clisi_knn]       [A
+Metrics:  40%|[34m████      [0m| 4/10 [00:19<00:23,  3.91s/it, Bio conservation: clisi_knn][A
+Metrics:  40%|[34m████      [0m| 4/10 [00:19<00:23,  3.91s/it, Batch correction: silhouette_batch][A
+Metrics:  50%|[34m█████     [0m| 5/10 [00:20<00:15,  3.13s/it, Batch correction: silhouette_batch][A
+Metrics:  50%|[34m█████     [0m| 5/10 [00:20<00:15,  3.13s/it, Batch correction: ilisi_knn]       [A
+Metrics:  60%|[34m██████    [0m| 6/10 [00:21<00:08,  2.23s/it, Batch correction: ilisi_knn][A
+Metrics:  60%|[34m██████    [0m| 6/10 [00:21<00:08,  2.23s/it, Batch correction: kbet_per_label][A/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scib_metrics/_kbet.py:181: FutureWarning: pandas.value_counts is deprecated and will be removed in a future version. Use pd.Series(obj).value_counts() instead.
   comp_size = pd.value_counts(labs)
 /cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scib_metrics/_kbet.py:181: FutureWarning: pandas.value_counts is deprecated and will be removed in a future version. Use pd.Series(obj).value_counts() instead.
   comp_size = pd.value_counts(labs)
@@ -234,10 +232,10 @@ WARNING: Length of palette colors is smaller than the number of categories (pale
 /cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scib_metrics/_kbet.py:181: FutureWarning: pandas.value_counts is deprecated and will be removed in a future version. Use pd.Series(obj).value_counts() instead.
   comp_size = pd.value_counts(labs)
 
-Metrics:  70%|[34m███████   [0m| 7/10 [00:59<00:36, 12.19s/it, Batch correction: kbet_per_label][A
-Metrics:  70%|[34m███████   [0m| 7/10 [00:59<00:36, 12.19s/it, Batch correction: graph_connectivity][A/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scib_metrics/_graph_connectivity.py:30: FutureWarning: pandas.value_counts is deprecated and will be removed in a future version. Use pd.Series(obj).value_counts() instead.
+Metrics:  70%|[34m███████   [0m| 7/10 [00:43<00:26,  8.74s/it, Batch correction: kbet_per_label][A
+Metrics:  70%|[34m███████   [0m| 7/10 [00:43<00:26,  8.74s/it, Batch correction: graph_connectivity][A/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scib_metrics/_graph_connectivity.py:30: FutureWarning: pandas.value_counts is deprecated and will be removed in a future version. Use pd.Series(obj).value_counts() instead.
   tab = pd.value_counts(comps)
 
-Metrics:  80%|[34m████████  [0m| 8/10 [00:59<00:16,  8.36s/it, Batch correction: graph_connectivity][AEmbeddings: 100%|[32m██████████[0m| 3/3 [22:53<00:00, 351.86s/it]Embeddings: 100%|[32m██████████[0m| 3/3 [22:53<00:00, 457.91s/it]
+Metrics:  80%|[34m████████  [0m| 8/10 [00:43<00:11,  5.99s/it, Batch correction: graph_connectivity][AEmbeddings: 100%|[32m██████████[0m| 3/3 [16:59<00:00, 264.04s/it]Embeddings: 100%|[32m██████████[0m| 3/3 [16:59<00:00, 339.78s/it]
 
                                                                                              [A

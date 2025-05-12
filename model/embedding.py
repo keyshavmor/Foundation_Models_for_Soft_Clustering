@@ -7,7 +7,7 @@ from model.cancergpt import CancerGPT
 from model.data_collator import DataCollator
 from model.dataset import Dataset
 
-from .utils import load_pretrained
+from model.utils import load_pretrained
 from model.vocab import GeneVocab
 import scanpy as sc
 import torch
@@ -15,7 +15,6 @@ import numpy as np
 import json
 from torch.utils.data import DataLoader, SequentialSampler
 PathLike = Union[str, os.PathLike]
-
 
 def embed(
     adata_or_file: Union[AnnData, PathLike],
@@ -59,10 +58,20 @@ def embed(
     ]
 
     adata = adata[:, adata.var["id_in_vocab"] >= 0]
-
-    # Change from cell_ranger to seurat
+    
+    # --------------------------------------------------------------------
+    # Remove genes that are zero in any batch (avoids duplicate quantiles)
+    # --------------------------------------------------------------------
+    if batch_key is not None:
+        for b in adata.obs[batch_key].unique():
+            sc.pp.filter_genes(
+                adata[adata.obs[batch_key] == b],
+                min_counts=1,
+                inplace=True,
+            )
+    ################################################################
     sc.pp.highly_variable_genes(
-    adata, n_top_genes=max_length-1, flavor="seurat", batch_key=batch_key)
+    adata, n_top_genes=max_length-1, flavor='seurat', batch_key=batch_key)
     adata = adata[:, adata.var['highly_variable']]
     adata.var["genes"] = adata.var.index
 
@@ -109,13 +118,14 @@ def embed(
         sampling=True,
         keep_first_n_tokens=1,
     )
+    print("Embedding data_loader is using {} num_workers".format(min(len(os.sched_getaffinity(0)), batch_size)-1))
     data_loader = DataLoader(
         dataset,
         batch_size=batch_size,
         sampler=SequentialSampler(dataset),
         collate_fn=collator,
         drop_last=False,
-        num_workers=min(os.cpu_count(), batch_size),
+        num_workers=min(len(os.sched_getaffinity(0)), batch_size)-1,
         pin_memory=True,
     )
 
