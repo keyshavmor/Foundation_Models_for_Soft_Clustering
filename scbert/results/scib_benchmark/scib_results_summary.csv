@@ -1,0 +1,4 @@
+Embedding,Isolated labels,Leiden NMI,Leiden ARI,Silhouette label,cLISI,Silhouette batch,iLISI,KBET,Graph connectivity,PCR comparison,Batch correction,Bio conservation,Total
+scbert_embed,0.48985484,0.12233415859944168,0.0700703720973302,0.49315086,0.7710612,0.9671977,0.023294194,,0.17825291289541034,0.4987868146218465,0.4168829135468328,0.3892942830428883,0.40032973524446613
+X_pca,0.49285886,0.13501292719923252,0.06247464158589545,0.4949037,0.7175487,0.9363954,0.018113408,,0.5685773305266181,0.0,0.38077154289109205,0.38055977343109787,0.38064448121509553
+Metric Type,Bio conservation,Bio conservation,Bio conservation,Bio conservation,Bio conservation,Batch correction,Batch correction,Batch correction,Batch correction,Batch correction,Aggregate score,Aggregate score,Aggregate score
