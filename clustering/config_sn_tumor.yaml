@@ -67,14 +67,14 @@ clustering:
 
   # GMM parameters
   gmm:
-    covariance_type: 'full' # 'full', 'tied', 'diag', 'spherical'
+    covariance_type: 'diag' # 'full', 'tied', 'diag', 'spherical'
     n_components_min: 2
     n_components_max: 15 # Adjust based on expected complexity
-    n_init: 30
+    n_init: 5
 
   # KMeans parameters (n_clusters set dynamically if GMM is used)
   kmeans:
-    n_init: 30
+    n_init: 5
 
   # Leiden parameters
   leiden:

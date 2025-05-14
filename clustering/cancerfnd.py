@@ -1,6 +1,15 @@
 # %%
 import sys
 import os
+# DEBUGGING:
+
+print(f"--- PYTHON SCRIPT cancerfnd.py STARTED --- CWD: {os.getcwd()}", flush=True)
+print(f"--- PYTHON SCRIPT cancerfnd.py --- Python Executable: {sys.executable}", flush=True)
+print(f"--- PYTHON SCRIPT cancerfnd.py --- sys.path: {sys.path}", flush=True)
+
+
+
+
 import yaml
 import warnings
 import scanpy as sc
@@ -23,8 +32,8 @@ except ImportError:
 
 # Append model directory to path if necessary (adjust based on your project structure)
 # Assuming the 'model' package is in the parent directory relative to the script
-# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))) # If running as script
-sys.path.insert(0, "../") # If running interactively relative to project root
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))) # If running as script
+#sys.path.insert(0, "../") # If running interactively relative to project root
 from model.embedding import embed
 
 # %%
@@ -181,12 +190,15 @@ if adata is None:
     sc.pp.filter_genes(adata_source, min_cells=3)
     ### END: Cleaning data ###
 
-    adata_source.var_names = adata_source.var["gene_name"].values  # make "gene_name" the var index"
+    adata_source.var_names = adata_source.var["gene_name"].values.copy() # make "gene_name" the var index"
+    adata_source = adata_source[:, ~adata_source.var.index.isna()].copy() #remove genes with no name
     input_layer = embed_cfg['input_layer']
     if input_layer is not None:
         print("input_layer is {}".format(input_layer))
-        adata_source.X = adata_source.layers[input_layer]
+        adata_source.X = adata_source.layers[input_layer].copy().toarray() # convert sparse to dense
         print("adata_source.X has shape {} and values: {}".format(adata_source.X.shape,adata_source.X))
+    #if adata_source.is_view:
+    adata_source = adata_source.copy() # Ensure we have a copy, not a view
 
 
 

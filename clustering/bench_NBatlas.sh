@@ -3,7 +3,7 @@
 #SBATCH -n 1
 #SBATCH --time=23:59:59
 #SBATCH --mem-per-cpu=42GB
-#SBATCH --cpus-per-task=3
+#SBATCH --cpus-per-task=1
 #SBATCH --output=cancerfnd.out
 #SBATCH --error=cancerfnd.err
 #SBATCH --open-mode=truncate # truncate overwrites output and error files, append just appends
