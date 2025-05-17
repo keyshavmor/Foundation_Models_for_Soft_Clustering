@@ -1,12 +1,34 @@
+WARNING: The title list is shorter than the number of panels. Using 'color' value instead for some plots.
+WARNING: The title list is shorter than the number of panels. Using 'color' value instead for some plots.
+/cluster/home/maurdu/Foundation_models_NB/clustering/cancerfnd.py:389: FutureWarning: In the future, the default backend for leiden will be igraph instead of leidenalg.
+
+ To achieve the future defaults please pass: flavor="igraph" and n_iterations=2.  directed must also be False to work with igraph's implementation.
+  sc.tl.leiden(adata, resolution=cluster_cfg['leiden']['resolution'],
+WARNING: saving figure to file tumor/results/my_saved_plots/X_umap_cfnd_harmony_ground_truth_cell_state.png
+WARNING: saving figure to file tumor/results/my_saved_plots/X_umap_cfnd_harmony_batch_donor_id.png
+WARNING: saving figure to file tumor/results/my_saved_plots/X_umap_cfnd_harmony_timepoint_Stage_Code.png
+WARNING: saving figure to file tumor/results/my_saved_plots/X_umap_cfnd_harmony_cluster_leiden.png
+WARNING: saving figure to file tumor/results/my_saved_plots/X_umap_cfnd_harmony_cluster_louvain.png
+WARNING: saving figure to file tumor/results/my_saved_plots/X_umap_cfnd_harmony_cluster_gmm_cluster.png
+WARNING: saving figure to file tumor/results/my_saved_plots/X_umap_cfnd_harmony_cluster_kmeans.png
+WARNING: saving figure to file tumor/results/my_saved_plots/X_umap_cfnd_harmony_GMM_entropy.png
+/cluster/home/maurdu/Foundation_models_NB/clustering/cancerfnd.py:549: DeprecationWarning: is_categorical_dtype is deprecated and will be removed in a future version. Use isinstance(dtype, pd.CategoricalDtype) instead
+  if not pd.api.types.is_categorical_dtype(true_labels):
 Traceback (most recent call last):
-  File "/cluster/home/maurdu/Foundation_models_NB/clustering/cancerfnd.py", line 243, in <module>
-    sc.external.pp.bbknn(adata, batch_key=data_keys_cfg['batch_key'], neighbors_within_batch=neighb_within_batch, metric="euclidean", use_rep=data_keys_cfg["embedding_key_model"])
-  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/legacy_api_wrap/__init__.py", line 82, in fn_compatible
-    return fn(*args_all, **kw)
-  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scanpy/external/pp/_bbknn.py", line 137, in bbknn
-    return bbknn(
-  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/bbknn/__init__.py", line 108, in bbknn
-    bbknn_out = matrix.bbknn(pca=pca, batch_list=batch_list, scanpy_logging=True, **kwargs)
-  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/bbknn/matrix.py", line 356, in bbknn
-    raise ValueError("Not all batches have at least `neighbors_within_batch` cells in them.")
-ValueError: Not all batches have at least `neighbors_within_batch` cells in them.
+  File "/cluster/home/maurdu/Foundation_models_NB/clustering/cancerfnd.py", line 563, in <module>
+    ari = adjusted_rand_score(true_labels, predicted_labels)
+  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/sklearn/utils/_param_validation.py", line 216, in wrapper
+    return func(*args, **kwargs)
+  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/sklearn/metrics/cluster/_supervised.py", line 442, in adjusted_rand_score
+    (tn, fp), (fn, tp) = pair_confusion_matrix(labels_true, labels_pred)
+  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/sklearn/utils/_param_validation.py", line 189, in wrapper
+    return func(*args, **kwargs)
+  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/sklearn/metrics/cluster/_supervised.py", line 243, in pair_confusion_matrix
+    labels_true, labels_pred = check_clusterings(labels_true, labels_pred)
+  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/sklearn/metrics/cluster/_supervised.py", line 36, in check_clusterings
+    labels_true = check_array(
+  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/sklearn/utils/validation.py", line 1107, in check_array
+    _assert_all_finite(
+  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/sklearn/utils/validation.py", line 105, in _assert_all_finite
+    raise ValueError("Input contains NaN")
+ValueError: Input contains NaN

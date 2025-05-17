@@ -99,7 +99,7 @@ visualization:
   figure_dpi: 300
   # Color palettes or specific settings if needed
 
-  plot_output_dir: 'tumor/results/my_saved_plots'
+  plot_output_dir: 'concat_tumor/evaluation_plots/clustering'
 # --- Evaluation ---
 evaluation:
   # Metrics to calculate against ground_truth_key
@@ -142,9 +142,9 @@ benchmarking:
     # Must include the main model embedding
     - "CancerGPT'"
     # Add others for comparison if available/calculated (e.g., PCA)
-    - "cancerfnd_pca"
-    - "cancerfnd_pca_harmony"
-    - "X_umap_cfnd_harmony"
+   # - "cancerfnd_pca"
+   # - "cancerfnd_pca_harmony"
+   # - "X_umap_cfnd_harmony"
   # Use Leiden clustering labels for NMI/ARI calculation within scIB Bio Conservation
   bio_conservation_leiden: True
   # Use Kmeans clustering labels for NMI/ARI calculation within scIB Bio Conservation

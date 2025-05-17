@@ -276,7 +276,7 @@ cluster_results = {} # To store labels temporarily if needed
 optimal_n_clusters = None
 if cluster_cfg['use_gmm']:
     print("--- Running Gaussian Mixture Model (GMM) ---")
-    n_components_range = range(cluster_cfg['gmm']['n_components_min'], cluster_cfg['gmm']['n_components_max'])
+    n_components_range = range(cluster_cfg['gmm']['n_components_min'], cluster_cfg['gmm']['n_components_max']+1)
     bic_scores = []
     aic_scores = []
     silhouette_scores_gmm = [] # GMM silhouette
