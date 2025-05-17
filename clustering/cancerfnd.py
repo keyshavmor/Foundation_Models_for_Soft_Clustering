@@ -409,60 +409,130 @@ print("Updated adata object is:")
 print(adata)
 # %%
 # --- Visualization ---
+# Necessary imports for this section (assume others like AnnData (adata) are pre-loaded)
+import scanpy as sc
+import warnings
+import os
+# import matplotlib # Not strictly needed if only using sc.pl.embedding with save parameter
+
 print("\n" + "="*50)
 print("--- Generating Visualizations ---")
 print("="*50 + "\n")
 
-umap_key = viz_cfg['embedding_basis']
-if umap_key not in adata.obsm:
-    warnings.warn(f"UMAP key '{umap_key}' not found. Skipping UMAP plots.")
+# --- Configure Scanpy plot settings for saving ---
+# (Assuming viz_cfg, data_keys_cfg, cluster_cfg, and adata are defined above this section)
+
+# Define the output directory for plots.
+# You can get this from viz_cfg or set a default.
+# e.g., plot_output_dir = viz_cfg.get('plot_output_dir', 'scanpy_plots_output')
+# For this example, let's assume it's 'concat/results/saved_plots' to match a potential existing structure
+# or a new desired one.
+plot_output_dir = viz_cfg.get('plot_output_dir', 'concat/results/my_saved_plots') # Or any other path
+
+# Create the directory if it doesn't exist
+if not os.path.exists(plot_output_dir):
+    os.makedirs(plot_output_dir)
+    print(f"Created plot output directory: {plot_output_dir}")
+
+sc.settings.figdir = plot_output_dir
+sc.settings.autoshow = False  # Important: Do not show plots interactively, rely on saving
+sc.settings.autosave = False  # Disable global autosave if using explicit save in each plot call
+sc.settings.file_format_figs = viz_cfg.get('plot_file_format', 'png') # e.g., 'png', 'pdf', 'svg'
+
+print(f"Scanpy plots will be saved to: {os.path.abspath(sc.settings.figdir)}")
+print(f"Scanpy plot file format: {sc.settings.file_format_figs}")
+# --- End of Scanpy plot settings configuration ---
+
+umap_key = viz_cfg.get('embedding_basis') # Use .get() for safety
+
+if not umap_key:
+    warnings.warn(f"'embedding_basis' not found or is None in viz_cfg. Skipping UMAP plots.")
+elif umap_key not in adata.obsm:
+    warnings.warn(f"UMAP key '{umap_key}' not found in adata.obsm. Skipping UMAP plots.")
 else:
-    print(f"Plotting UMAPs based on '{umap_key}'...")
+    print(f"Plotting UMAPs based on '{umap_key}' and saving to '{sc.settings.figdir}'...")
+
+    # Helper to generate a save filename component for sc.pl.embedding
+    # The 'save' parameter in sc.pl.embedding typically expects a suffix like "_description.png"
+    # It will be prepended by sc.settings.figdir and the basis name (e.g., "umap_").
+    def get_save_filename_suffix(description_parts):
+        # Sanitize parts and join them for the suffix part of the filename
+        # Replace problematic characters for filenames
+        safe_parts = [str(p).replace(' ', '_').replace('/', '-').replace('.', '_') for p in description_parts if p]
+        filename_core = "_".join(safe_parts)
+        return f"_{filename_core}.{sc.settings.file_format_figs}"
 
     # Plot by Ground Truth
-    if data_keys_cfg['ground_truth_key'] in adata.obs:
-        print(f"Plotting UMAP colored by '{data_keys_cfg['ground_truth_key']}'...")
-        sc.pl.embedding(adata, basis=umap_key, color=data_keys_cfg['ground_truth_key'],
-                       legend_loc='on data', legend_fontsize=8, title=f'Ground Truth ({data_keys_cfg["ground_truth_key"]})')
-        plt.show()
-    else:
-        print(f"Skipping ground truth UMAP plot: key '{data_keys_cfg['ground_truth_key']}' not found.")
+    ground_truth_obs_key = data_keys_cfg.get('ground_truth_key')
+    if ground_truth_obs_key and ground_truth_obs_key in adata.obs:
+        save_suffix = get_save_filename_suffix(["ground_truth", ground_truth_obs_key])
+        print(f"Plotting UMAP colored by '{ground_truth_obs_key}', saving with suffix '{save_suffix}'...")
+        sc.pl.embedding(adata, basis=umap_key, color=ground_truth_obs_key,
+                       legend_loc='on data', legend_fontsize=8, title=f'Ground Truth ({ground_truth_obs_key})',
+                       save=save_suffix)
+    elif ground_truth_obs_key: # Key was configured but not found in adata.obs
+        print(f"Skipping ground truth UMAP plot: key '{ground_truth_obs_key}' not found in adata.obs.")
+    else: # Key was not configured
+        print("Skipping ground truth UMAP plot: 'ground_truth_key' not configured or is None in data_keys_cfg.")
 
     # Plot by Batch Key
-    if data_keys_cfg['batch_key'] in adata.obs:
-        print(f"Plotting UMAP colored by '{data_keys_cfg['batch_key']}'...")
-        sc.pl.embedding(adata, basis=umap_key, color=data_keys_cfg['batch_key'],
-                       title=f'Batch Key ({data_keys_cfg["batch_key"]})')
-        plt.show()
+    batch_key_obs_key = data_keys_cfg.get('batch_key')
+    if batch_key_obs_key and batch_key_obs_key in adata.obs:
+        save_suffix = get_save_filename_suffix(["batch", batch_key_obs_key])
+        print(f"Plotting UMAP colored by '{batch_key_obs_key}', saving with suffix '{save_suffix}'...")
+        sc.pl.embedding(adata, basis=umap_key, color=batch_key_obs_key,
+                       title=f'Batch Key ({batch_key_obs_key})',
+                       save=save_suffix)
+    elif batch_key_obs_key:
+        print(f"Skipping batch key UMAP plot: key '{batch_key_obs_key}' not found in adata.obs.")
     else:
-        print(f"Skipping batch key UMAP plot: key '{data_keys_cfg['batch_key']}' not found.")
+        print("Skipping batch key UMAP plot: 'batch_key' not configured or is None in data_keys_cfg.")
 
     # Plot by Timepoint Key
-    if data_keys_cfg['timepoint_key'] in adata.obs:
-        print(f"Plotting UMAP colored by '{data_keys_cfg['timepoint_key']}'...")
-        sc.pl.embedding(adata, basis=umap_key, color=data_keys_cfg['timepoint_key'],
-                       title=f'Timepoint ({data_keys_cfg["timepoint_key"]})')
-        plt.show()
+    timepoint_key_obs_key = data_keys_cfg.get('timepoint_key')
+    if timepoint_key_obs_key and timepoint_key_obs_key in adata.obs:
+        save_suffix = get_save_filename_suffix(["timepoint", timepoint_key_obs_key])
+        print(f"Plotting UMAP colored by '{timepoint_key_obs_key}', saving with suffix '{save_suffix}'...")
+        sc.pl.embedding(adata, basis=umap_key, color=timepoint_key_obs_key,
+                       title=f'Timepoint ({timepoint_key_obs_key})',
+                       save=save_suffix)
+    elif timepoint_key_obs_key:
+        print(f"Skipping timepoint key UMAP plot: key '{timepoint_key_obs_key}' not found in adata.obs.")
     else:
-        print(f"Skipping timepoint key UMAP plot: key '{data_keys_cfg['timepoint_key']}' not found.")
-
+        print("Skipping timepoint key UMAP plot: 'timepoint_key' not configured or is None in data_keys_cfg.")
 
     # Plot by Generated Clusters
-    for cluster_key in cluster_cfg['clustering_keys_to_analyze']:
-        if cluster_key in adata.obs:
-            print(f"Plotting UMAP colored by '{cluster_key}'...")
-            sc.pl.embedding(adata, basis=umap_key, color=cluster_key,
-                           legend_loc='on data', legend_fontsize=8, title=f'Cluster: {cluster_key}')
-            plt.show()
+    clustering_keys_to_analyze = cluster_cfg.get('clustering_keys_to_analyze', [])
+    if not isinstance(clustering_keys_to_analyze, list): # Basic check for iterability
+        warnings.warn(f"'clustering_keys_to_analyze' in cluster_cfg (value: {clustering_keys_to_analyze}) is not a list or is missing. Skipping cluster plots.")
+        clustering_keys_to_analyze = []
+        
+    for cluster_key_name in clustering_keys_to_analyze:
+        if cluster_key_name in adata.obs:
+            save_suffix = get_save_filename_suffix(["cluster", cluster_key_name])
+            print(f"Plotting UMAP colored by '{cluster_key_name}', saving with suffix '{save_suffix}'...")
+            sc.pl.embedding(adata, basis=umap_key, color=cluster_key_name,
+                           legend_loc='on data', legend_fontsize=8, title=f'Cluster: {cluster_key_name}',
+                           save=save_suffix)
         else:
-            print(f"Skipping cluster UMAP plot: key '{cluster_key}' not found.")
+            print(f"Skipping cluster UMAP plot: key '{cluster_key_name}' not found in adata.obs.")
 
     # Plot GMM Entropy if available
-    if 'GMM_entropy' in adata.obs:
-        print("Plotting UMAP colored by GMM Entropy...")
-        sc.pl.embedding(adata, basis=umap_key, color='GMM_entropy', cmap='viridis',
-                       title='GMM Assignment Entropy')
-        plt.show()
+    gmm_entropy_obs_key = 'GMM_entropy' # Fixed key name
+    if gmm_entropy_obs_key in adata.obs:
+        save_suffix = get_save_filename_suffix([gmm_entropy_obs_key]) # Simpler name for single metric
+        print(f"Plotting UMAP colored by GMM Entropy, saving with suffix '{save_suffix}'...")
+        sc.pl.embedding(adata, basis=umap_key, color=gmm_entropy_obs_key, cmap='viridis',
+                       title='GMM Assignment Entropy',
+                       save=save_suffix)
+    else:
+        # This is not an error, just an optional plot
+        print(f"Skipping GMM Entropy plot: '{gmm_entropy_obs_key}' not found in adata.obs.")
+
+print("\n" + "="*50)
+print("--- Visualization Generation and Saving Complete ---")
+print(f"--- Plots have been saved in: {os.path.abspath(sc.settings.figdir)} ---")
+print("="*50 + "\n")
 
 # %%
 # --- Evaluation Against Ground Truth ---

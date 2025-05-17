@@ -83,7 +83,6 @@ clustering:
   # Louvain parameters
   louvain:
     resolution: 1.0
-
   # List of cluster keys to evaluate/visualize
   clustering_keys_to_analyze:
     - 'leiden'

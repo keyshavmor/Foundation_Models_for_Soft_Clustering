@@ -34,7 +34,7 @@ data_keys:
   # Check your specific AnnData file for the correct key (e.g., 'cell_state', 'cell_type_fine')
   ground_truth_key: "cell_state" 
   # Batch key for visualization and scIB
-  batch_key: "SAMPLES_JOINT" # "donor_id" # "donor_id" when using sn_tumor cells otherwise "Sample"
+  batch_key: "donor_id" # "donor_id" # "donor_id" when using sn_tumor cells otherwise "Sample"
   # Timepoint key for interpretability analysis
   timepoint_key: "Stage_Code" # DX, PTX
   # Value representing the "pre-treatment" or baseline state in timepoint_key
@@ -99,6 +99,7 @@ visualization:
   figure_dpi: 300
   # Color palettes or specific settings if needed
 
+  plot_output_dir: 'tumor/results/my_saved_plots'
 # --- Evaluation ---
 evaluation:
   # Metrics to calculate against ground_truth_key
