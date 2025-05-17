@@ -13,7 +13,7 @@ paths:
 output_paths:
   # Where to save the anndata with the CancerFoundation embedding
   adata_embedded_dir: "resources/embeddings/"
-  adata_embedded_filename: "embedding_processed.h5ad"
+  adata_embedded_filename: "concat_tumor.h5ad"
 
   # Where to save the final anndata with clustering, etc.
   adata_clustered_dir: "results/clustered_data/"
@@ -53,6 +53,7 @@ embedding:
 
 # --- Preprocessing for Downstream Analysis ---
 preprocessing:
+  only_cells_with_ground_truth: True
   # Number of neighbors for UMAP and Leiden/Louvain
   n_neighbors: 15
   # PCA components if needed for comparison or baseline
@@ -141,10 +142,9 @@ benchmarking:
   embedding_keys:
     # Must include the main model embedding
     - "CancerGPT'"
-    # Add others for comparison if available/calculated (e.g., PCA)
-   # - "cancerfnd_pca"
-   # - "cancerfnd_pca_harmony"
-   # - "X_umap_cfnd_harmony"
+    - "cancerfnd_pca"
+    - "cancerfnd_pca_harmony"
+    - "X_umap_cfnd_harmony"
   # Use Leiden clustering labels for NMI/ARI calculation within scIB Bio Conservation
   bio_conservation_leiden: True
   # Use Kmeans clustering labels for NMI/ARI calculation within scIB Bio Conservation

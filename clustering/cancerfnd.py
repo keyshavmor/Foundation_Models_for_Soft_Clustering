@@ -232,6 +232,13 @@ else:
 
 ##### EMBEDDING FINISHED #####
 # %%
+
+#Filter for cells that have ground_truth
+if pp_cfg['only_cells_with_ground_truth']:
+    adata = adata[pd.isna(adata.obs[data_keys_cfg['ground_truth_key']]) == False].copy()
+    print(f'adata filtered for cells that have a ground truth value, retaining: {adata.shape}')
+
+
 # --- Calculate Neighbors and UMAP based on CancerFoundation Embedding ---
 print(f"\n--- Calculating Neighbors and UMAP based on '{model_embedding_key}' ---")
 if model_embedding_key not in adata.obsm_keys():
@@ -250,7 +257,7 @@ sc.pl.umap(adata, color=[data_keys_cfg['ground_truth_key'], data_keys_cfg['batch
                 ) # Use default neighbors calculation
 # Rename the default 'X_umap' to our specific key
 if 'X_umap' in adata.obsm_keys() and 'X_umap' != umap_key:
-    adata.obsm['X_umap'] = adata.obsm[umap_key] 
+    adata.obsm[umap_key] = adata.obsm['X_umap'] 
     del adata.obsm['X_umap']
     print(f"UMAP calculated and stored in adata.obsm['{umap_key}']")
 else:
@@ -407,6 +414,7 @@ if cluster_cfg['use_louvain']:
 print("--- Clustering Finished ---")
 print("Updated adata object is:")
 print(adata)
+adata.write_h5ad('midpoint_save.h5ad', compression='gzip')
 # %%
 # --- Visualization ---
 # Necessary imports for this section (assume others like AnnData (adata) are pre-loaded)
