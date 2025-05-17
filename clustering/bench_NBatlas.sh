@@ -4,8 +4,8 @@
 #SBATCH --time=23:59:59
 #SBATCH --mem-per-cpu=42GB
 #SBATCH --cpus-per-task=1
-#SBATCH --output=cancerfnd.out
-#SBATCH --error=cancerfnd.err
+#SBATCH --output=atlas.out
+#SBATCH --error=atlas.err
 #SBATCH --open-mode=truncate # truncate overwrites output and error files, append just appends
 #SBATCH --mail-user=maurdu@student.ethz.ch
 #SBATCH --mail-type=START,END,FAIL

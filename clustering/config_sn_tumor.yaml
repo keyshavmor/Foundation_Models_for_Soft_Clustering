@@ -47,7 +47,7 @@ embedding:
   # If True, force regeneration even if output file exists
   force_regenerate: False
   # Parameters for the embed function (adjust if needed)
-  batch_size: 64
+  batch_size: 128
   # If the model expects a specific layer from input AnnData (e.g., 'X' or 'counts')
   input_layer: 'RNA' # null uses adata.X
 
@@ -149,4 +149,4 @@ benchmarking:
   # Include PCR comparison in Batch Correction score
   batch_correction_pcr: True
   # Number of parallel jobs for scIB
-  n_jobs: 3
+  n_jobs: 1

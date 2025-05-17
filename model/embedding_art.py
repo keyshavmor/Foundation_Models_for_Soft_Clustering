@@ -2,7 +2,9 @@ from tqdm import tqdm
 from pathlib import Path
 from typing import Optional, Union
 from anndata import AnnData
+import anndata as ad
 import os
+import multiprocessing
 from model.cancergpt import CancerGPT
 from model.data_collator import DataCollator
 from model.dataset import Dataset
@@ -23,7 +25,7 @@ def embed(
     max_length: int = 1200,
     batch_size: int = 64,
     obs_to_save: Optional[list] = None,
-    device: Union[str, torch.device] = "cuda",
+    device: Union[str, torch.device] = "mps",
     normalize: bool = True,
 ) -> AnnData:
     if isinstance(adata_or_file, AnnData):
@@ -47,42 +49,52 @@ def embed(
     model_file = model_dir / "model.pth"
     pad_token = "<pad>"
     pad_value = -2
-
-    # vocabulary
+    print('model loaded')
+    #vocabulary
     vocab = GeneVocab.from_file(vocab_file)
 
-    adata.var["genes"] = adata.var.index
+    adata.var["genes"] = adata.var.index.copy()
 
     adata.var["id_in_vocab"] = [
         vocab[gene] if gene in vocab else -1 for gene in adata.var["genes"]
     ]
 
-    adata = adata[:, adata.var["id_in_vocab"] >= 0]
-    
+    adata = adata[:, adata.var["id_in_vocab"] >= 0].copy()
+    print('vocab done')
     # --------------------------------------------------------------------
     # Remove genes that are zero in any batch (avoids duplicate quantiles)
     # --------------------------------------------------------------------
+    # if batch_key is not None:
+    #     for b in adata.obs[batch_key].unique():
+    #         sc.pp.filter_genes(
+    #             adata[adata.obs[batch_key] == b],
+    #             min_counts=1,
+    #             inplace=True,
+    #         )
     if batch_key is not None:
+        filtered_batches = []
         for b in adata.obs[batch_key].unique():
-            sc.pp.filter_genes(
-                adata[adata.obs[batch_key] == b],
-                min_counts=1,
-                inplace=True,
-            )
-            
+            subset = adata[adata.obs[batch_key] == b].copy()
+            sc.pp.filter_genes(subset, min_counts=1, inplace=True)
+            filtered_batches.append(subset)
+        adata = ad.concat(filtered_batches, join='outer')
+
     ################################################################
+    sc.pp.log1p(adata)
+    print('before hvg -----', adata.X.shape)
     sc.pp.highly_variable_genes(
-    adata, n_top_genes=max_length-1, flavor='seurat', batch_key=batch_key)
+    adata, n_top_genes=max_length-1, flavor='seurat')
     adata = adata[:, adata.var['highly_variable']]
     adata.var["genes"] = adata.var.index
-
+    print('------ HVG SUCCESSFULL ------')
+    print('after hvg -----', adata.X.shape)
     with open(model_config_file, "r") as f:
         model_configs = json.load(f)
 
     vocab.set_default_index(vocab["<pad>"])
     genes = adata.var["genes"].tolist()
     gene_ids = np.array(vocab(genes), dtype=int)
-
+    
     model = CancerGPT(
         ntoken=len(vocab),
         d_model=model_configs["embsize"],
@@ -119,21 +131,23 @@ def embed(
         sampling=True,
         keep_first_n_tokens=1,
     )
-    print("Embedding data_loader is using {} num_workers".format(min(len(os.sched_getaffinity(0)), batch_size)-1))
     data_loader = DataLoader(
         dataset,
         batch_size=batch_size,
         sampler=SequentialSampler(dataset),
         collate_fn=collator,
         drop_last=False,
-        num_workers=min(len(os.sched_getaffinity(0)), batch_size)-1,
+        num_workers = 2,
         pin_memory=True,
     )
+    
+
 
     device = next(model.parameters()).device
     cell_embeddings = np.zeros(
         (len(dataset), model_configs["embsize"]), dtype=np.float32
     )
+    print('Launching model with input shape:', adata.X.shape)
     with torch.no_grad(), torch.cuda.amp.autocast(enabled=True):
         count = 0
         for data_dict in tqdm(data_loader, desc="Embedding cells"):

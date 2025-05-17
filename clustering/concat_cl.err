@@ -1,0 +1,34 @@
+WARNING: The title list is shorter than the number of panels. Using 'color' value instead for some plots.
+WARNING: The title list is shorter than the number of panels. Using 'color' value instead for some plots.
+/cluster/home/maurdu/Foundation_models_NB/clustering/cancerfnd.py:389: FutureWarning: In the future, the default backend for leiden will be igraph instead of leidenalg.
+
+ To achieve the future defaults please pass: flavor="igraph" and n_iterations=2.  directed must also be False to work with igraph's implementation.
+  sc.tl.leiden(adata, resolution=cluster_cfg['leiden']['resolution'],
+WARNING: saving figure to file concat/results/scanpy_plots/X_umap_cfnd_harmony.pdf
+WARNING: saving figure to file concat/results/scanpy_plots/X_umap_cfnd_harmony.pdf
+WARNING: saving figure to file concat/results/scanpy_plots/X_umap_cfnd_harmony.pdf
+WARNING: saving figure to file concat/results/scanpy_plots/X_umap_cfnd_harmony.pdf
+WARNING: saving figure to file concat/results/scanpy_plots/X_umap_cfnd_harmony.pdf
+WARNING: saving figure to file concat/results/scanpy_plots/X_umap_cfnd_harmony.pdf
+WARNING: saving figure to file concat/results/scanpy_plots/X_umap_cfnd_harmony.pdf
+WARNING: saving figure to file concat/results/scanpy_plots/X_umap_cfnd_harmony.pdf
+/cluster/home/maurdu/Foundation_models_NB/clustering/cancerfnd.py:479: DeprecationWarning: is_categorical_dtype is deprecated and will be removed in a future version. Use isinstance(dtype, pd.CategoricalDtype) instead
+  if not pd.api.types.is_categorical_dtype(true_labels):
+Traceback (most recent call last):
+  File "/cluster/home/maurdu/Foundation_models_NB/clustering/cancerfnd.py", line 493, in <module>
+    ari = adjusted_rand_score(true_labels, predicted_labels)
+  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/sklearn/utils/_param_validation.py", line 216, in wrapper
+    return func(*args, **kwargs)
+  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/sklearn/metrics/cluster/_supervised.py", line 442, in adjusted_rand_score
+    (tn, fp), (fn, tp) = pair_confusion_matrix(labels_true, labels_pred)
+  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/sklearn/utils/_param_validation.py", line 189, in wrapper
+    return func(*args, **kwargs)
+  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/sklearn/metrics/cluster/_supervised.py", line 243, in pair_confusion_matrix
+    labels_true, labels_pred = check_clusterings(labels_true, labels_pred)
+  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/sklearn/metrics/cluster/_supervised.py", line 36, in check_clusterings
+    labels_true = check_array(
+  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/sklearn/utils/validation.py", line 1107, in check_array
+    _assert_all_finite(
+  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/sklearn/utils/validation.py", line 105, in _assert_all_finite
+    raise ValueError("Input contains NaN")
+ValueError: Input contains NaN

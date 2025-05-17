@@ -1,0 +1,151 @@
+--- Starting Slurm Job ---
+Job ID: 32152370
+Running on host: eu-g5-045-1
+Initial CWD: /cluster/home/maurdu/Foundation_models_NB/clustering
+User: maurdu
+Home: /cluster/home/maurdu
+-----------------------------
+Loading eth_proxy module...
+eth_proxy module loaded. HTTP_PROXY=
+-----------------------------
+Setting up Conda...
+Activating Conda environment: cancer_found
+Conda environment activated: cancer_found
+Python interpreter: /cluster/home/maurdu/miniconda/envs/cancer_found/bin/python
+Python version: Python 3.9.21
+PYTHONPATH: 
+-----------------------------
+Attempting to cd to: /cluster/home/maurdu/Foundation_models_NB/clustering
+Successfully changed CWD. New CWD: /cluster/home/maurdu/Foundation_models_NB/clustering
+-----------------------------
+Checking if Python script exists: /cluster/home/maurdu/Foundation_models_NB/clustering/cancerfnd.py
+-rw-r--r-- 1 maurdu maurdu-group 52K May 16 16:31 /cluster/home/maurdu/Foundation_models_NB/clustering/cancerfnd.py
+Checking if Config file exists: /cluster/home/maurdu/Foundation_models_NB/clustering/config_concat.yaml
+-rw-r--r-- 1 maurdu maurdu-group 5.2K May 16 15:42 /cluster/home/maurdu/Foundation_models_NB/clustering/config_concat.yaml
+-----------------------------
+Executing command: python -u -X faulthandler cancerfnd.py --config=config_concat.yaml
+--- PYTHON SCRIPT cancerfnd.py STARTED --- CWD: /cluster/home/maurdu/Foundation_models_NB/clustering
+--- PYTHON SCRIPT cancerfnd.py --- Python Executable: /cluster/home/maurdu/miniconda/envs/cancer_found/bin/python
+--- PYTHON SCRIPT cancerfnd.py --- sys.path: ['/cluster/home/maurdu/Foundation_models_NB/clustering', '/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python39.zip', '/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9', '/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/lib-dynload', '/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages']
+--- Loading Configuration ---
+Loaded configuration for: CancerFoundation_NB_Dataset3_Analysis
+--- Setting up Paths and Scanpy ---
+Scanpy figure directory set to: concat/results/scanpy_plots
+--- Matplotlib plt.show() patched to save figures instead. ---
+--- Loading/Generating CancerFoundation Embeddings ---
+output_embedded_path is: resources/embeddings/embedding_processed.h5ad
+Loading existing embedded AnnData: resources/embeddings/embedding_processed.h5ad
+Load complete.
+Found embedding key 'CancerGPT' in loaded data.
+
+--- Embedded AnnData Object Info ---
+AnnData object with n_obs × n_vars = 53315 × 1197
+    obs: 'orig.ident', 'nCount_RNA', 'nFeature_RNA', 'percent_mito', 'Study', 'Assay', 'Platform', 'Sample', 'Patient_No', 'Timepoint', 'INSS_stage', 'MYCN_amplification', 'Gender', 'Risk', 'Cell_condition', 'Cell_type', 'cell', 'n_genes', 'leiden', 'cnv_leiden', 'cnv_score', 'cnv_status', 'Stage_Code', 'Tissue', 'Risk_Category', 'First_Avail_TP', 'MYCN_Status', 'ALK_Status', 'TP53_Status', 'Response', 'Vital_Status', 'Age_at_IDX_in_months', 'Treatment', 'First_Avail_Time_Point', 'sample_name', 'biospecimen_id', 'percent.mt', 'seurat_clusters', 'sample_label_wo_prefix', 'S.Score', 'G2M.Score', 'Phase', 'malignancy', 'cell_state', 'RNA_snn_res.0.2', 'MES_Score', 'ADRN_Score', 'MES_ADRN_diff', 'Event', 'organism_ontology_term_id', 'donor_id', 'development_stage_ontology_term_id', 'sex_ontology_term_id', 'disease_ontology_term_id', 'tissue_type', 'cell_type_ontology_term_id', 'assay_ontology_term_id', 'suspension_type', 'tissue_ontology_term_id', 'self_reported_ethnicity_ontology_term_id', 'is_primary_data', 'cell_type', 'assay', 'disease', 'organism', 'sex', 'tissue', 'self_reported_ethnicity', 'development_stage', 'observation_joinid', 'cell_type_joint', 'SAMPLES_JOINT'
+    var: 'highly_variable', 'means', 'dispersions', 'dispersions_norm', 'genes', 'n_cells'
+    uns: 'SAMPLES_JOINT_colors', 'Stage_Code_colors', 'X_umap_cfnd_bbknn', 'X_umap_cfnd_harmony', 'cell_state_colors', 'cell_type_joint_colors', 'hvg', 'log1p', 'neighbors'
+    obsm: 'CancerGPT', 'X_pca', 'X_umap', 'X_umap_cfnd_bbknn', 'X_umap_cfnd_harmony', 'cancerfnd_pca', 'cancerfnd_pca_harmony', 'cancerfnd_z'
+    obsp: 'connectivities', 'distances'
+Embedding 'CancerGPT' shape: (53315, 256)
+
+--- Calculating Neighbors and UMAP based on 'CancerGPT' ---
+UMAP calculated and stored in adata.obsm['X_umap_cfnd_harmony']
+
+==================================================
+--- Running Clustering Algorithms ---
+==================================================
+
+--- Running Gaussian Mixture Model (GMM) ---
+Calculating BIC/AIC for component selection...
+  Fitting GMM with 2 components...
+  Fitting GMM with 3 components...
+  Fitting GMM with 4 components...
+  Fitting GMM with 5 components...
+  Fitting GMM with 6 components...
+  Fitting GMM with 7 components...
+  Fitting GMM with 8 components...
+  Fitting GMM with 9 components...
+  Fitting GMM with 10 components...
+  Fitting GMM with 11 components...
+  Fitting GMM with 12 components...
+  Fitting GMM with 13 components...
+  Fitting GMM with 14 components...
+Optimal number of clusters based on BIC: 14
+--- Plot Autosave: Saving plots to directory 'concat/results/autosaved_plots/' ---
+Redirecting plt.show(): Saving figure 0 to concat/results/autosaved_plots/autosaved_plot_0.png
+Fitting final GMM with 14 components...
+Added 'GMM_probabilities' to obsm, 'GMM_entropy' and 'gmm_cluster' to obs.
+
+--- Running K-Means Clustering (k=14) ---
+Stored K-Means results in adata.obs['kmeans']
+
+--- Running Leiden Clustering ---
+Stored Leiden results in adata.obs['leiden']
+Found 12 Leiden clusters.
+
+--- Running Louvain Clustering ---
+Stored Louvain results in adata.obs['louvain']
+Found 13 Louvain clusters.
+--- Clustering Finished ---
+Updated adata object is:
+AnnData object with n_obs × n_vars = 53315 × 1197
+    obs: 'orig.ident', 'nCount_RNA', 'nFeature_RNA', 'percent_mito', 'Study', 'Assay', 'Platform', 'Sample', 'Patient_No', 'Timepoint', 'INSS_stage', 'MYCN_amplification', 'Gender', 'Risk', 'Cell_condition', 'Cell_type', 'cell', 'n_genes', 'leiden', 'cnv_leiden', 'cnv_score', 'cnv_status', 'Stage_Code', 'Tissue', 'Risk_Category', 'First_Avail_TP', 'MYCN_Status', 'ALK_Status', 'TP53_Status', 'Response', 'Vital_Status', 'Age_at_IDX_in_months', 'Treatment', 'First_Avail_Time_Point', 'sample_name', 'biospecimen_id', 'percent.mt', 'seurat_clusters', 'sample_label_wo_prefix', 'S.Score', 'G2M.Score', 'Phase', 'malignancy', 'cell_state', 'RNA_snn_res.0.2', 'MES_Score', 'ADRN_Score', 'MES_ADRN_diff', 'Event', 'organism_ontology_term_id', 'donor_id', 'development_stage_ontology_term_id', 'sex_ontology_term_id', 'disease_ontology_term_id', 'tissue_type', 'cell_type_ontology_term_id', 'assay_ontology_term_id', 'suspension_type', 'tissue_ontology_term_id', 'self_reported_ethnicity_ontology_term_id', 'is_primary_data', 'cell_type', 'assay', 'disease', 'organism', 'sex', 'tissue', 'self_reported_ethnicity', 'development_stage', 'observation_joinid', 'cell_type_joint', 'SAMPLES_JOINT', 'GMM_entropy', 'gmm_cluster', 'kmeans', 'louvain'
+    var: 'highly_variable', 'means', 'dispersions', 'dispersions_norm', 'genes', 'n_cells'
+    uns: 'SAMPLES_JOINT_colors', 'Stage_Code_colors', 'X_umap_cfnd_bbknn', 'X_umap_cfnd_harmony', 'cell_state_colors', 'cell_type_joint_colors', 'hvg', 'log1p', 'neighbors', 'leiden', 'louvain'
+    obsm: 'CancerGPT', 'X_pca', 'X_umap_cfnd_bbknn', 'X_umap_cfnd_harmony', 'cancerfnd_pca', 'cancerfnd_pca_harmony', 'cancerfnd_z', 'GMM_probabilities'
+    obsp: 'connectivities', 'distances'
+
+==================================================
+--- Generating Visualizations ---
+==================================================
+
+Plotting UMAPs based on 'X_umap_cfnd_harmony'...
+Plotting UMAP colored by 'cell_state'...
+Redirecting plt.show(): Saving figure 1 to concat/results/autosaved_plots/autosaved_plot_1.png
+Plotting UMAP colored by 'SAMPLES_JOINT'...
+Redirecting plt.show(): Skipping figure 2 (no axes).
+Plotting UMAP colored by 'Stage_Code'...
+Redirecting plt.show(): Skipping figure 2 (no axes).
+Plotting UMAP colored by 'leiden'...
+Redirecting plt.show(): Skipping figure 2 (no axes).
+Plotting UMAP colored by 'louvain'...
+Redirecting plt.show(): Skipping figure 2 (no axes).
+Plotting UMAP colored by 'gmm_cluster'...
+Redirecting plt.show(): Skipping figure 2 (no axes).
+Plotting UMAP colored by 'kmeans'...
+Redirecting plt.show(): Skipping figure 2 (no axes).
+Plotting UMAP colored by GMM Entropy...
+Redirecting plt.show(): Skipping figure 2 (no axes).
+
+==================================================
+--- Evaluating Clustering vs 'cell_state' ---
+==================================================
+
+--- 1. Calculating Evaluation Metrics ---
+Evaluating: leiden
+-----------------------------
+Python script finished with exit code: 1
+Listing files in CWD (/cluster/home/maurdu/Foundation_models_NB/clustering) after script execution:
+total 212K
+drwxr-xr-x  6 maurdu maurdu-group 4.0K May 16 16:19 .
+drwxr-xr-x 11 maurdu maurdu-group 4.0K May  1 12:12 ..
+-rw-r--r--  1 maurdu maurdu-group  555 May 15 09:21 bench_NBatlas.sh
+-rw-r--r--  1 maurdu maurdu-group  551 May 15 12:03 bench_tumor.sh
+-rw-r--r--  1 maurdu maurdu-group  42K May 15 16:43 cancerfnd_a.py
+-rw-r--r--  1 maurdu maurdu-group  52K May 16 16:31 cancerfnd.py
+drwxr-xr-x  3 maurdu maurdu-group 4.0K May 16 15:45 concat
+-rw-r--r--  1 maurdu maurdu-group 3.1K May 16 17:20 concat_cl.err
+-rw-r--r--  1 maurdu maurdu-group 8.7K May 16 17:20 concat_cl.out
+-rw-r--r--  1 maurdu maurdu-group 5.1K May 16 15:27 config_concat_a.yaml
+-rw-r--r--  1 maurdu maurdu-group 5.2K May 16 15:42 config_concat.yaml
+-rw-r--r--  1 maurdu maurdu-group 5.3K May 15 16:02 config_NBatlas.yaml
+-rw-r--r--  1 maurdu maurdu-group 5.1K May 15 16:00 config_sn_tumor.yaml
+-rw-r--r--  1 maurdu maurdu-group 2.6K May 15 12:10 debug_atlas.sh
+-rw-r--r--  1 maurdu maurdu-group 2.6K May 15 16:52 debug_concat_a.sh
+-rw-r--r--  1 maurdu maurdu-group 2.6K May 16 13:11 debug_concat.sh
+-rw-r--r--  1 maurdu maurdu-group 2.6K May 15 12:08 debug_tumor.sh
+drwxr-xr-x  3 maurdu maurdu-group 4.0K May 15 16:03 NBatlas
+drwxr-xr-x  3 maurdu maurdu-group 4.0K Apr 29 14:46 resources
+drwxr-xr-x  8 maurdu maurdu-group 4.0K May 15 18:38 results
+-rw-r--r--  1 maurdu maurdu-group 1.2K May 16 13:05 tumor.err
+-rw-r--r--  1 maurdu maurdu-group 5.4K May 16 13:05 tumor.out
+--- Slurm Job Ended ---

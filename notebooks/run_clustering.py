@@ -208,7 +208,7 @@ bic_scores = []
 aic_scores = []
 silhouette_scores = []
 # Ensure covariance_type is defined before the loop
-covariance_type = 'spherical' # 'full', 'tied', 'diag', 'spherical'
+covariance_type = 'diag' # 'full', 'tied', 'diag', 'spherical'
 
 for n_components in n_components_range:
     print(f"Fitting GMM with {n_components} components...")

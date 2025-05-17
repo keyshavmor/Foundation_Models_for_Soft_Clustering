@@ -1,6 +1,6 @@
 --- Starting Slurm Job ---
-Job ID: 31949233
-Running on host: eu-g5-018-4
+Job ID: 32113537
+Running on host: eu-g5-042-1
 Initial CWD: /cluster/home/maurdu/Foundation_models_NB/clustering
 User: maurdu
 Home: /cluster/home/maurdu
@@ -19,44 +19,57 @@ Attempting to cd to: /cluster/home/maurdu/Foundation_models_NB/clustering
 Successfully changed CWD. New CWD: /cluster/home/maurdu/Foundation_models_NB/clustering
 -----------------------------
 Checking if Python script exists: /cluster/home/maurdu/Foundation_models_NB/clustering/cancerfnd.py
--rw-r--r-- 1 maurdu maurdu-group 43K May 14 14:37 /cluster/home/maurdu/Foundation_models_NB/clustering/cancerfnd.py
-Checking if Config file exists: /cluster/home/maurdu/Foundation_models_NB/clustering/config_sn_tumor.yaml
--rw-r--r-- 1 maurdu maurdu-group 5.1K May 14 14:52 /cluster/home/maurdu/Foundation_models_NB/clustering/config_sn_tumor.yaml
+-rw-r--r-- 1 maurdu maurdu-group 52K May 16 12:29 /cluster/home/maurdu/Foundation_models_NB/clustering/cancerfnd.py
+Checking if Config file exists: /cluster/home/maurdu/Foundation_models_NB/clustering/config_concat.yaml
+-rw-r--r-- 1 maurdu maurdu-group 5.0K May 16 12:49 /cluster/home/maurdu/Foundation_models_NB/clustering/config_concat.yaml
 -----------------------------
-Executing command: python -u -X faulthandler cancerfnd.py --config=config_sn_tumor.yaml
+Executing command: python -u -X faulthandler cancerfnd.py --config=config_concat.yaml
 --- PYTHON SCRIPT cancerfnd.py STARTED --- CWD: /cluster/home/maurdu/Foundation_models_NB/clustering
 --- PYTHON SCRIPT cancerfnd.py --- Python Executable: /cluster/home/maurdu/miniconda/envs/cancer_found/bin/python
 --- PYTHON SCRIPT cancerfnd.py --- sys.path: ['/cluster/home/maurdu/Foundation_models_NB/clustering', '/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python39.zip', '/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9', '/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/lib-dynload', '/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages']
 --- Loading Configuration ---
-Loaded configuration for: CancerFoundation_NB_Dataset2_Analysis
+Loaded configuration for: CancerFoundation_NB_Dataset3_Analysis
 --- Setting up Paths and Scanpy ---
 Scanpy figure directory set to: results/scanpy_plots
 --- Matplotlib plt.show() patched to save figures instead. ---
 --- Loading/Generating CancerFoundation Embeddings ---
-Loading existing embedded AnnData: resources/embeddings/sn_tumor_cells_embed.h5ad
+output_embedded_path is: resources/embeddings/embedding.h5ad
+Loading existing embedded AnnData: resources/embeddings/embedding.h5ad
 Load complete.
 Found embedding key 'CancerGPT' in loaded data.
 
 --- Embedded AnnData Object Info ---
-AnnData object with n_obs × n_vars = 197847 × 1199
-    obs: 'orig.ident', 'nCount_RNA', 'nFeature_RNA', 'Stage_Code', 'Tissue', 'Risk_Category', 'First_Avail_TP', 'MYCN_Status', 'ALK_Status', 'TP53_Status', 'Response', 'Vital_Status', 'Age_at_IDX_in_months', 'Treatment', 'First_Avail_Time_Point', 'sample_name', 'biospecimen_id', 'percent.mt', 'seurat_clusters', 'sample_label_wo_prefix', 'S.Score', 'G2M.Score', 'Phase', 'malignancy', 'cell_state', 'RNA_snn_res.0.2', 'MES_Score', 'ADRN_Score', 'MES_ADRN_diff', 'Event', 'organism_ontology_term_id', 'donor_id', 'development_stage_ontology_term_id', 'sex_ontology_term_id', 'disease_ontology_term_id', 'tissue_type', 'cell_type_ontology_term_id', 'assay_ontology_term_id', 'suspension_type', 'tissue_ontology_term_id', 'self_reported_ethnicity_ontology_term_id', 'is_primary_data', 'cell_type', 'assay', 'disease', 'organism', 'sex', 'tissue', 'self_reported_ethnicity', 'development_stage', 'observation_joinid', 'n_genes', 'leiden'
-    var: 'gene_name', 'vf_vst_counts_mean', 'vf_vst_counts_variance', 'vf_vst_counts_variance.expected', 'vf_vst_counts_variance.standardized', 'vf_vst_counts_variable', 'vf_vst_counts_rank', 'var.features', 'var.features.rank', 'ensembl_id_version', 'feature_is_filtered', 'feature_name', 'feature_reference', 'feature_biotype', 'feature_length', 'feature_type', 'n_cells', 'mean', 'std', 'highly_variable', 'highly_variable_rank', 'means', 'variances', 'variances_norm', 'genes', 'id_in_vocab', 'dispersions', 'dispersions_norm', 'highly_variable_nbatches', 'highly_variable_intersection'
-    uns: 'citation', 'hvg', 'leiden', 'neighbors', 'schema_reference', 'schema_version', 'title', 'umap'
-    obsm: 'CancerGPT', 'X_harmony', 'X_pca', 'X_umap'
-    layers: 'RNA', 'log1p_norm'
-    obsp: 'connectivities', 'distances'
-Embedding 'CancerGPT' shape: (197847, 256)
+AnnData object with n_obs × n_vars = 324592 × 1199
+    obs: 'orig.ident', 'nCount_RNA', 'nFeature_RNA', 'percent_mito', 'Study', 'Assay', 'Platform', 'Sample', 'Patient_No', 'Timepoint', 'INSS_stage', 'MYCN_amplification', 'Gender', 'Risk', 'Cell_condition', 'Cell_type', 'cell', 'n_genes', 'leiden', 'cnv_leiden', 'cnv_score', 'cnv_status', 'Stage_Code', 'Tissue', 'Risk_Category', 'First_Avail_TP', 'MYCN_Status', 'ALK_Status', 'TP53_Status', 'Response', 'Vital_Status', 'Age_at_IDX_in_months', 'Treatment', 'First_Avail_Time_Point', 'sample_name', 'biospecimen_id', 'percent.mt', 'seurat_clusters', 'sample_label_wo_prefix', 'S.Score', 'G2M.Score', 'Phase', 'malignancy', 'cell_state', 'RNA_snn_res.0.2', 'MES_Score', 'ADRN_Score', 'MES_ADRN_diff', 'Event', 'organism_ontology_term_id', 'donor_id', 'development_stage_ontology_term_id', 'sex_ontology_term_id', 'disease_ontology_term_id', 'tissue_type', 'cell_type_ontology_term_id', 'assay_ontology_term_id', 'suspension_type', 'tissue_ontology_term_id', 'self_reported_ethnicity_ontology_term_id', 'is_primary_data', 'cell_type', 'assay', 'disease', 'organism', 'sex', 'tissue', 'self_reported_ethnicity', 'development_stage', 'observation_joinid', 'cell_type_joint', 'SAMPLES_JOINT'
+    var: 'highly_variable', 'means', 'dispersions', 'dispersions_norm', 'genes'
+    uns: 'hvg', 'log1p'
+    obsm: 'CancerGPT', 'X_pca', 'X_umap'
+Embedding 'CancerGPT' shape: (324592, 256)
 
 --- Calculating Neighbors and UMAP based on 'CancerGPT' ---
-UMAP calculated and stored in adata.obsm['X_umap']
-
---- Calculating PCA for Benchmarking Comparison ---
-PCA calculated and stored in adata.obsm['X_pca']
-
-==================================================
---- Running Clustering Algorithms ---
-==================================================
-
---- Running Gaussian Mixture Model (GMM) ---
-Calculating BIC/AIC for component selection...
-  Fitting GMM with 2 components...
+-----------------------------
+Python script finished with exit code: 1
+Listing files in CWD (/cluster/home/maurdu/Foundation_models_NB/clustering) after script execution:
+total 204K
+drwxr-xr-x  5 maurdu maurdu-group 4.0K May 16 12:38 .
+drwxr-xr-x 11 maurdu maurdu-group 4.0K May  1 12:12 ..
+-rw-r--r--  1 maurdu maurdu-group 1.4K May 15 16:52 atlas.err
+-rw-r--r--  1 maurdu maurdu-group 5.0K May 15 16:52 atlas.out
+-rw-r--r--  1 maurdu maurdu-group  555 May 15 09:21 bench_NBatlas.sh
+-rw-r--r--  1 maurdu maurdu-group  551 May 15 12:03 bench_tumor.sh
+-rw-r--r--  1 maurdu maurdu-group  42K May 15 16:43 cancerfnd_a.py
+-rw-r--r--  1 maurdu maurdu-group  52K May 16 12:29 cancerfnd.py
+-rw-r--r--  1 maurdu maurdu-group 5.1K May 15 16:53 config_concat_a.yaml
+-rw-r--r--  1 maurdu maurdu-group 5.0K May 16 12:49 config_concat.yaml
+-rw-r--r--  1 maurdu maurdu-group 5.3K May 15 16:02 config_NBatlas.yaml
+-rw-r--r--  1 maurdu maurdu-group 5.1K May 15 16:00 config_sn_tumor.yaml
+-rw-r--r--  1 maurdu maurdu-group 2.6K May 15 12:10 debug_atlas.sh
+-rw-r--r--  1 maurdu maurdu-group 2.6K May 15 16:52 debug_concat_a.sh
+-rw-r--r--  1 maurdu maurdu-group 2.6K May 16 12:51 debug_concat.sh
+-rw-r--r--  1 maurdu maurdu-group 2.6K May 15 12:08 debug_tumor.sh
+drwxr-xr-x  3 maurdu maurdu-group 4.0K May 15 16:03 NBatlas
+drwxr-xr-x  3 maurdu maurdu-group 4.0K Apr 29 14:46 resources
+drwxr-xr-x  8 maurdu maurdu-group 4.0K May 15 18:38 results
+-rw-r--r--  1 maurdu maurdu-group 1.2K May 16 13:05 tumor.err
+-rw-r--r--  1 maurdu maurdu-group 4.1K May 16 13:05 tumor.out
+--- Slurm Job Ended ---

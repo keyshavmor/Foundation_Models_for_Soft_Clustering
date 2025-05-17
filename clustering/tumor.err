@@ -1,1 +1,12 @@
-slurmstepd: error: *** JOB 31949233 ON eu-g5-018-4 CANCELLED AT 2025-05-14T17:12:47 ***
+Traceback (most recent call last):
+  File "/cluster/home/maurdu/Foundation_models_NB/clustering/cancerfnd.py", line 243, in <module>
+    sc.external.pp.bbknn(adata, batch_key=data_keys_cfg['batch_key'], neighbors_within_batch=neighb_within_batch, metric="euclidean", use_rep=data_keys_cfg["embedding_key_model"])
+  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/legacy_api_wrap/__init__.py", line 82, in fn_compatible
+    return fn(*args_all, **kw)
+  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/scanpy/external/pp/_bbknn.py", line 137, in bbknn
+    return bbknn(
+  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/bbknn/__init__.py", line 108, in bbknn
+    bbknn_out = matrix.bbknn(pca=pca, batch_list=batch_list, scanpy_logging=True, **kwargs)
+  File "/cluster/home/maurdu/miniconda/envs/cancer_found/lib/python3.9/site-packages/bbknn/matrix.py", line 356, in bbknn
+    raise ValueError("Not all batches have at least `neighbors_within_batch` cells in them.")
+ValueError: Not all batches have at least `neighbors_within_batch` cells in them.

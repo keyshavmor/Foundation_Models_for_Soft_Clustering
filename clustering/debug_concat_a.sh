@@ -2,8 +2,8 @@
 
 #SBATCH -n 1
 #SBATCH --time=23:59:59
-#SBATCH --mem-per-cpu=36GB  
-#SBATCH --cpus-per-task=1
+#SBATCH --mem-per-cpu=42GB  
+#SBATCH --cpus-per-task=3
 #SBATCH --output=tumor.out
 #SBATCH --error=tumor.err
 #SBATCH --open-mode=truncate
@@ -45,8 +45,8 @@ fi
 echo "Successfully changed CWD. New CWD: $(pwd)"
 echo "-----------------------------"
 
-PYTHON_SCRIPT="cancerfnd.py"
-CONFIG_FILE="config_sn_tumor.yaml"
+PYTHON_SCRIPT="cancerfnd_a.py"
+CONFIG_FILE="config_concat_a.yaml"
 
 echo "Checking if Python script exists: ${TARGET_DIR}/${PYTHON_SCRIPT}"
 ls -lh "${TARGET_DIR}/${PYTHON_SCRIPT}"
