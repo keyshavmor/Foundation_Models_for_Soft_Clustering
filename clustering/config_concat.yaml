@@ -54,7 +54,7 @@ embedding:
 # --- Preprocessing for Downstream Analysis ---
 preprocessing:
   # Number of neighbors for UMAP and Leiden/Louvain
-  n_neighbors: 15
+  n_neighbors: 3
   # PCA components if needed for comparison or baseline
   n_pca_components: 50
 

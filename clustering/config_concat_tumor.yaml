@@ -13,7 +13,7 @@ paths:
 output_paths:
   # Where to save the anndata with the CancerFoundation embedding
   adata_embedded_dir: "resources/embeddings/"
-  adata_embedded_filename: "concat_tumor.h5ad"
+  adata_embedded_filename: "embedding_processed.h5ad"
 
   # Where to save the final anndata with clustering, etc.
   adata_clustered_dir: "results/clustered_data/"
@@ -70,12 +70,12 @@ clustering:
   gmm:
     covariance_type: 'diag' # 'full', 'tied', 'diag', 'spherical'
     n_components_min: 2
-    n_components_max: 15 # Adjust based on expected complexity
-    n_init: 15
+    n_components_max: 20 # Adjust based on expected complexity
+    n_init: 30
 
   # KMeans parameters (n_clusters set dynamically if GMM is used)
   kmeans:
-    n_init: 15
+    n_init: 30
 
   # Leiden parameters
   leiden:
@@ -97,10 +97,10 @@ clustering:
 visualization:
   # Embedding basis for plotting (usually UMAP based on the model embedding)
   embedding_basis: "X_umap_cfnd_harmony" # Will be created based on embedding_key_model
-  figure_dpi: 300
+  figure_dpi: 600
   # Color palettes or specific settings if needed
 
-  plot_output_dir: 'concat_tumor/evaluation_plots/clustering'
+  plot_output_dir: 'clustering/concat_tumor/clustering_plots'
 # --- Evaluation ---
 evaluation:
   # Metrics to calculate against ground_truth_key
@@ -141,7 +141,7 @@ benchmarking:
   # Embeddings to include in the benchmark
   embedding_keys:
     # Must include the main model embedding
-    - "CancerGPT'"
+    - "CancerGPT"
     - "cancerfnd_pca"
     - "cancerfnd_pca_harmony"
     - "X_umap_cfnd_harmony"

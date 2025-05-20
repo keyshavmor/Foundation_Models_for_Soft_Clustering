@@ -431,9 +431,9 @@ print(f"Eigengap heuristic suggests n_clusters={n_clusters_spectral} for Cluster
 # --- 3a: K-Means Clustering ---
 # Decide on the number of clusters for k-means.
 import pandas as pd
-n_clusters_kmeans = n_clusters_spectral # n_clusters # n_clusters: number of clusters used by gmm, n_clusters_spectral number of cluster using spectral clustering
+n_clusters_kmeans =n_clusters  #n_clusters_spectral # n_clusters # n_clusters: number of clusters used by gmm, n_clusters_spectral number of cluster using spectral clustering
 print(f"Running K-Means with {n_clusters_kmeans} clusters on embeddings...")
-kmeans = KMeans(n_clusters=n_clusters_kmeans, random_state=random_seed, n_init=10)
+kmeans = KMeans(n_clusters=n_clusters_kmeans, random_state=random_seed, n_init=30)
 kmeans_labels = kmeans.fit_predict(embeddings)
 embed_adata.obs['kmeans'] = pd.Categorical([f'KMeans_{c}' for c in kmeans_labels])
 print(f"Stored K-Means results in embed_adata.obs['kmeans']")
@@ -459,8 +459,8 @@ print(f"Found {len(embed_adata.obs['leiden'].cat.categories)} Leiden clusters.")
 
 # --- 3d: HDBSCAN Clustering ---
 print("Running HDBSCAN...")
-min_cluster_size_hdbscan = 10 # all points basically classified as noise using: max(25, int(0.20 * np.sqrt(len(embed_adata))))
-min_samples_hdbscan = 7
+min_cluster_size_hdbscan = 7 # all points basically classified as noise using: max(25, int(0.20 * np.sqrt(len(embed_adata))))
+min_samples_hdbscan = 5
 print(f"Using min_cluster_size={min_cluster_size_hdbscan} for HDBSCAN.")
 Hdbscan_cluster = HDBSCAN(min_cluster_size=min_cluster_size_hdbscan, min_samples = min_samples_hdbscan)
 hdbscan_labels = Hdbscan_cluster.fit_predict(embeddings)
@@ -475,7 +475,7 @@ print("Stored HDBSCAN results in embed_adata.obs['HDBSCAN'].")
 # --- 3e: OPTICS Clustering ---
 from sklearn.cluster import OPTICS
 print("Running OPTICS...")
-optics_min_samples = 7
+optics_min_samples = 5
 print(f"Using min_samples={optics_min_samples} for OPTICS.")
 optics = OPTICS(min_samples=optics_min_samples)
 optics_labels = optics.fit_predict(embeddings)

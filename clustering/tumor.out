@@ -1,6 +1,6 @@
 --- Starting Slurm Job ---
-Job ID: 32244290
-Running on host: eu-g5-045-3
+Job ID: 32268414
+Running on host: eu-g5-044-3
 Initial CWD: /cluster/home/maurdu/Foundation_models_NB/clustering
 User: maurdu
 Home: /cluster/home/maurdu
@@ -19,9 +19,9 @@ Attempting to cd to: /cluster/home/maurdu/Foundation_models_NB/clustering
 Successfully changed CWD. New CWD: /cluster/home/maurdu/Foundation_models_NB/clustering
 -----------------------------
 Checking if Python script exists: /cluster/home/maurdu/Foundation_models_NB/clustering/cancerfnd.py
--rw-r--r-- 1 maurdu maurdu-group 57K May 17 11:40 /cluster/home/maurdu/Foundation_models_NB/clustering/cancerfnd.py
+-rw-r--r-- 1 maurdu maurdu-group 57K May 17 18:14 /cluster/home/maurdu/Foundation_models_NB/clustering/cancerfnd.py
 Checking if Config file exists: /cluster/home/maurdu/Foundation_models_NB/clustering/config_concat_tumor.yaml
--rw-r--r-- 1 maurdu maurdu-group 5.3K May 17 11:43 /cluster/home/maurdu/Foundation_models_NB/clustering/config_concat_tumor.yaml
+-rw-r--r-- 1 maurdu maurdu-group 5.2K May 17 18:55 /cluster/home/maurdu/Foundation_models_NB/clustering/config_concat_tumor.yaml
 -----------------------------
 Executing command: python -u -X faulthandler cancerfnd.py --config=config_concat_tumor.yaml
 --- PYTHON SCRIPT cancerfnd.py STARTED --- CWD: /cluster/home/maurdu/Foundation_models_NB/clustering
@@ -46,6 +46,7 @@ AnnData object with n_obs × n_vars = 53315 × 1197
     obsm: 'CancerGPT', 'X_pca', 'X_umap', 'X_umap_cfnd_bbknn', 'X_umap_cfnd_harmony', 'cancerfnd_pca', 'cancerfnd_pca_harmony', 'cancerfnd_z'
     obsp: 'connectivities', 'distances'
 Embedding 'CancerGPT' shape: (53315, 256)
+adata filtered for cells that have a ground truth value, retaining: (49131, 1197)
 
 --- Calculating Neighbors and UMAP based on 'CancerGPT' ---
 UMAP calculated and stored in adata.obsm['X_umap_cfnd_harmony']
@@ -69,25 +70,31 @@ Calculating BIC/AIC for component selection...
   Fitting GMM with 12 components...
   Fitting GMM with 13 components...
   Fitting GMM with 14 components...
-Optimal number of clusters based on BIC: 14
+  Fitting GMM with 15 components...
+  Fitting GMM with 16 components...
+  Fitting GMM with 17 components...
+  Fitting GMM with 18 components...
+  Fitting GMM with 19 components...
+  Fitting GMM with 20 components...
+Optimal number of clusters based on BIC: 20
 --- Plot Autosave: Saving plots to directory 'concat_tumor/results/autosaved_plots/' ---
 Redirecting plt.show(): Saving figure 0 to concat_tumor/results/autosaved_plots/autosaved_plot_0.png
-Fitting final GMM with 14 components...
+Fitting final GMM with 20 components...
 Added 'GMM_probabilities' to obsm, 'GMM_entropy' and 'gmm_cluster' to obs.
 
---- Running K-Means Clustering (k=14) ---
+--- Running K-Means Clustering (k=20) ---
 Stored K-Means results in adata.obs['kmeans']
 
 --- Running Leiden Clustering ---
 Stored Leiden results in adata.obs['leiden']
-Found 12 Leiden clusters.
+Found 18 Leiden clusters.
 
 --- Running Louvain Clustering ---
 Stored Louvain results in adata.obs['louvain']
-Found 13 Louvain clusters.
+Found 16 Louvain clusters.
 --- Clustering Finished ---
 Updated adata object is:
-AnnData object with n_obs × n_vars = 53315 × 1197
+AnnData object with n_obs × n_vars = 49131 × 1197
     obs: 'orig.ident', 'nCount_RNA', 'nFeature_RNA', 'percent_mito', 'Study', 'Assay', 'Platform', 'Sample', 'Patient_No', 'Timepoint', 'INSS_stage', 'MYCN_amplification', 'Gender', 'Risk', 'Cell_condition', 'Cell_type', 'cell', 'n_genes', 'leiden', 'cnv_leiden', 'cnv_score', 'cnv_status', 'Stage_Code', 'Tissue', 'Risk_Category', 'First_Avail_TP', 'MYCN_Status', 'ALK_Status', 'TP53_Status', 'Response', 'Vital_Status', 'Age_at_IDX_in_months', 'Treatment', 'First_Avail_Time_Point', 'sample_name', 'biospecimen_id', 'percent.mt', 'seurat_clusters', 'sample_label_wo_prefix', 'S.Score', 'G2M.Score', 'Phase', 'malignancy', 'cell_state', 'RNA_snn_res.0.2', 'MES_Score', 'ADRN_Score', 'MES_ADRN_diff', 'Event', 'organism_ontology_term_id', 'donor_id', 'development_stage_ontology_term_id', 'sex_ontology_term_id', 'disease_ontology_term_id', 'tissue_type', 'cell_type_ontology_term_id', 'assay_ontology_term_id', 'suspension_type', 'tissue_ontology_term_id', 'self_reported_ethnicity_ontology_term_id', 'is_primary_data', 'cell_type', 'assay', 'disease', 'organism', 'sex', 'tissue', 'self_reported_ethnicity', 'development_stage', 'observation_joinid', 'cell_type_joint', 'SAMPLES_JOINT', 'GMM_entropy', 'gmm_cluster', 'kmeans', 'louvain'
     var: 'highly_variable', 'means', 'dispersions', 'dispersions_norm', 'genes', 'n_cells'
     uns: 'SAMPLES_JOINT_colors', 'Stage_Code_colors', 'X_umap_cfnd_bbknn', 'X_umap_cfnd_harmony', 'cell_state_colors', 'cell_type_joint_colors', 'hvg', 'log1p', 'neighbors', 'donor_id_colors', 'leiden', 'louvain'
@@ -98,10 +105,10 @@ AnnData object with n_obs × n_vars = 53315 × 1197
 --- Generating Visualizations ---
 ==================================================
 
-Created plot output directory: tumor/results/my_saved_plots
-Scanpy plots will be saved to: /cluster/home/maurdu/Foundation_models_NB/clustering/tumor/results/my_saved_plots
+Created plot output directory: clustering/concat_tumor/clustering_plots
+Scanpy plots will be saved to: /cluster/home/maurdu/Foundation_models_NB/clustering/clustering/concat_tumor/clustering_plots
 Scanpy plot file format: png
-Plotting UMAPs based on 'X_umap_cfnd_harmony' and saving to 'tumor/results/my_saved_plots'...
+Plotting UMAPs based on 'X_umap_cfnd_harmony' and saving to 'clustering/concat_tumor/clustering_plots'...
 Plotting UMAP colored by 'cell_state', saving with suffix '_ground_truth_cell_state.png'...
 Plotting UMAP colored by 'donor_id', saving with suffix '_batch_donor_id.png'...
 Plotting UMAP colored by 'Stage_Code', saving with suffix '_timepoint_Stage_Code.png'...
@@ -113,7 +120,7 @@ Plotting UMAP colored by GMM Entropy, saving with suffix '_GMM_entropy.png'...
 
 ==================================================
 --- Visualization Generation and Saving Complete ---
---- Plots have been saved in: /cluster/home/maurdu/Foundation_models_NB/clustering/tumor/results/my_saved_plots ---
+--- Plots have been saved in: /cluster/home/maurdu/Foundation_models_NB/clustering/clustering/concat_tumor/clustering_plots ---
 ==================================================
 
 
@@ -123,23 +130,70 @@ Plotting UMAP colored by GMM Entropy, saving with suffix '_GMM_entropy.png'...
 
 --- 1. Calculating Evaluation Metrics ---
 Evaluating: leiden
+  ARI: 0.0479, NMI: 0.2065, Homogeneity: 0.3189, Completeness: 0.1527, V-Measure: 0.2065, Silhouette: -0.0367
+Evaluating: louvain
+  ARI: 0.0551, NMI: 0.2066, Homogeneity: 0.3101, Completeness: 0.1549, V-Measure: 0.2066, Silhouette: -0.0321
+Evaluating: gmm_cluster
+  ARI: 0.0485, NMI: 0.2117, Homogeneity: 0.3680, Completeness: 0.1486, V-Measure: 0.2117, Silhouette: 0.1367
+Evaluating: kmeans
+  ARI: 0.0520, NMI: 0.2106, Homogeneity: 0.3607, Completeness: 0.1487, V-Measure: 0.2106, Silhouette: 0.1510
+
+--- Metrics Summary ---
+|             |    ARI |    NMI |   Homogeneity |   Completeness |   V-Measure |   Silhouette |
+|:------------|-------:|-------:|--------------:|---------------:|------------:|-------------:|
+| leiden      | 0.0479 | 0.2065 |        0.3189 |         0.1527 |      0.2065 |      -0.0367 |
+| louvain     | 0.0551 | 0.2066 |        0.3101 |         0.1549 |      0.2066 |      -0.0321 |
+| gmm_cluster | 0.0485 | 0.2117 |        0.3680 |         0.1486 |      0.2117 |       0.1367 |
+| kmeans      | 0.0520 | 0.2106 |        0.3607 |         0.1487 |      0.2106 |       0.1510 |
+-------------------------
+Metrics saved to concat_tumor/results/evaluation_plots/clustering_metrics.csv
+
+--- 2. Generating Confusion Matrices ---
+Generating Confusion Matrix for: leiden
+Saved confusion matrix to concat_tumor/results/evaluation_plots/confusion_matrix_leiden_vs_cell_state.png
+Generating Confusion Matrix for: louvain
+Saved confusion matrix to concat_tumor/results/evaluation_plots/confusion_matrix_louvain_vs_cell_state.png
+Generating Confusion Matrix for: gmm_cluster
+Saved confusion matrix to concat_tumor/results/evaluation_plots/confusion_matrix_gmm_cluster_vs_cell_state.png
+Generating Confusion Matrix for: kmeans
+Saved confusion matrix to concat_tumor/results/evaluation_plots/confusion_matrix_kmeans_vs_cell_state.png
+
+--- 3. Generating Cluster Composition Plots ---
+Generating Composition Plot for: leiden
+Saved composition plot to concat_tumor/results/evaluation_plots/composition_plot_leiden.png
+Generating Composition Plot for: louvain
+Saved composition plot to concat_tumor/results/evaluation_plots/composition_plot_louvain.png
+Generating Composition Plot for: gmm_cluster
+Saved composition plot to concat_tumor/results/evaluation_plots/composition_plot_gmm_cluster.png
+Generating Composition Plot for: kmeans
+Saved composition plot to concat_tumor/results/evaluation_plots/composition_plot_kmeans.png
+
+==================================================
+--- Running scIB Benchmark ---
+==================================================
+
+Benchmarking embeddings: ['CancerGPT', 'cancerfnd_pca', 'cancerfnd_pca_harmony', 'X_umap_cfnd_harmony']
+Using label key: 'cell_state' and batch key: 'donor_id'
+Plotting scIB results table...
+Redirecting plt.show(): Saving figure 1 to concat_tumor/results/autosaved_plots/autosaved_plot_1.png
 -----------------------------
 Python script finished with exit code: 1
 Listing files in CWD (/cluster/home/maurdu/Foundation_models_NB/clustering) after script execution:
-total 240K
-drwxr-xr-x  7 maurdu maurdu-group 4.0K May 17 12:39 .
-drwxr-xr-x 11 maurdu maurdu-group 4.0K May  1 12:12 ..
+total 183M
+drwxr-xr-x  8 maurdu maurdu-group 4.0K May 17 20:24 .
+drwxr-xr-x 12 maurdu maurdu-group 4.0K May 17 18:14 ..
 -rw-r--r--  1 maurdu maurdu-group  555 May 15 09:21 bench_NBatlas.sh
 -rw-r--r--  1 maurdu maurdu-group  551 May 15 12:03 bench_tumor.sh
 -rw-r--r--  1 maurdu maurdu-group  42K May 15 16:43 cancerfnd_a.py
--rw-r--r--  1 maurdu maurdu-group  57K May 17 12:37 cancerfnd.py
+-rw-r--r--  1 maurdu maurdu-group  57K May 17 18:14 cancerfnd.py
+drwxr-xr-x  3 maurdu maurdu-group 4.0K May 17 20:24 clustering
 drwxr-xr-x  3 maurdu maurdu-group 4.0K May 16 15:45 concat
 -rw-r--r--  1 maurdu maurdu-group 3.1K May 16 17:20 concat_cl.err
 -rw-r--r--  1 maurdu maurdu-group  11K May 16 17:20 concat_cl.out
-drwxr-xr-x  3 maurdu maurdu-group 4.0K May 17 11:47 concat_tumor
+drwxr-xr-x  3 maurdu maurdu-group 4.0K May 17 18:26 concat_tumor
 -rw-r--r--  1 maurdu maurdu-group 5.1K May 16 15:27 config_concat_a.yaml
--rw-r--r--  1 maurdu maurdu-group 5.3K May 17 11:43 config_concat_tumor.yaml
--rw-r--r--  1 maurdu maurdu-group 5.2K May 17 11:16 config_concat.yaml
+-rw-r--r--  1 maurdu maurdu-group 5.2K May 17 18:55 config_concat_tumor.yaml
+-rw-r--r--  1 maurdu maurdu-group 5.2K May 17 19:08 config_concat.yaml
 -rw-r--r--  1 maurdu maurdu-group 5.3K May 15 16:02 config_NBatlas.yaml
 -rw-r--r--  1 maurdu maurdu-group 5.1K May 15 16:00 config_sn_tumor.yaml
 -rw-r--r--  1 maurdu maurdu-group 2.6K May 15 12:10 debug_atlas.sh
@@ -147,9 +201,10 @@ drwxr-xr-x  3 maurdu maurdu-group 4.0K May 17 11:47 concat_tumor
 -rw-r--r--  1 maurdu maurdu-group 2.6K May 16 13:11 debug_concat.sh
 -rw-r--r--  1 maurdu maurdu-group 2.6K May 17 11:46 debug_concat_tumor.sh
 -rw-r--r--  1 maurdu maurdu-group 2.6K May 15 12:08 debug_tumor.sh
+-rw-r--r--  1 maurdu maurdu-group 182M May 17 20:24 midpoint_save.h5ad
 drwxr-xr-x  3 maurdu maurdu-group 4.0K Apr 29 14:46 resources
 drwxr-xr-x  8 maurdu maurdu-group 4.0K May 15 18:38 results
 drwxr-xr-x  3 maurdu maurdu-group 4.0K May 17 12:39 tumor
--rw-r--r--  1 maurdu maurdu-group 3.2K May 17 12:39 tumor.err
--rw-r--r--  1 maurdu maurdu-group 9.1K May 17 12:39 tumor.out
+-rw-r--r--  1 maurdu maurdu-group  23K May 17 21:08 tumor.err
+-rw-r--r--  1 maurdu maurdu-group  13K May 17 21:08 tumor.out
 --- Slurm Job Ended ---
