@@ -474,7 +474,7 @@ else:
     ground_truth_obs_key = data_keys_cfg.get('ground_truth_key')
     if ground_truth_obs_key and ground_truth_obs_key in adata.obs:
         save_suffix = get_save_filename_suffix(["ground_truth", ground_truth_obs_key])
-        print(f"Plotting UMAP colored by '{ground_truth_obs_key}', saving with suffix '{data_keys_cfg["ground_truth_key"]}'...")
+        print(f"Plotting UMAP colored by '{ground_truth_obs_key}', saving with suffix '{data_keys_cfg['ground_truth_key']}'...")
         sc.pl.embedding(adata, basis=umap_key, color=ground_truth_obs_key,
                        legend_loc='on data', legend_fontsize=8, title=f'Ground Truth ({ground_truth_obs_key})',
                        save=f'Ground_Truth_({data_keys_cfg["ground_truth_key"]})')
@@ -487,7 +487,7 @@ else:
     batch_key_obs_key = data_keys_cfg.get('batch_key')
     if batch_key_obs_key and batch_key_obs_key in adata.obs:
         save_suffix = get_save_filename_suffix(["batch", batch_key_obs_key])
-        print(f"Plotting UMAP colored by '{batch_key_obs_key}', saving with suffix '{data_keys_cfg["batch_key"]}'...")
+        print(f"Plotting UMAP colored by '{batch_key_obs_key}', saving with suffix '{data_keys_cfg['batch_key']}'...")
         sc.pl.embedding(adata, basis=umap_key, color=batch_key_obs_key,
                        title=f'Batch Key ({batch_key_obs_key})',
                        save=f'Batch Key ({data_keys_cfg["batch_key"]})')
@@ -500,7 +500,7 @@ else:
     timepoint_key_obs_key = data_keys_cfg.get('timepoint_key')
     if timepoint_key_obs_key and timepoint_key_obs_key in adata.obs:
         save_suffix = get_save_filename_suffix(["timepoint", timepoint_key_obs_key])
-        print(f"Plotting UMAP colored by '{timepoint_key_obs_key}', saving with suffix '{data_keys_cfg["timepoint_key"]}'...")
+        print(f"Plotting UMAP colored by '{timepoint_key_obs_key}', saving with suffix '{data_keys_cfg['timepoint_key']}'...")
         sc.pl.embedding(adata, basis=umap_key, color=timepoint_key_obs_key,
                        title=f'Timepoint ({timepoint_key_obs_key})',
                        save=f'Timepoint ({data_keys_cfg["timepoint_key"]})')
