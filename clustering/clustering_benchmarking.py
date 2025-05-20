@@ -1,15 +1,6 @@
 # %%
 import sys
 import os
-# DEBUGGING:
-
-print(f"--- PYTHON SCRIPT cancerfnd.py STARTED --- CWD: {os.getcwd()}", flush=True)
-print(f"--- PYTHON SCRIPT cancerfnd.py --- Python Executable: {sys.executable}", flush=True)
-print(f"--- PYTHON SCRIPT cancerfnd.py --- sys.path: {sys.path}", flush=True)
-
-
-
-
 import yaml
 import warnings
 import scanpy as sc
@@ -32,9 +23,12 @@ except ImportError:
 
 # Append model directory to path if necessary (adjust based on your project structure)
 # Assuming the 'model' package is in the parent directory relative to the script
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))) # If running as script
-#sys.path.insert(0, "../") # If running interactively relative to project root
-from model.embedding import embed
+# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))) # If running as script
+sys.path.insert(0, "../") # If running interactively relative to project root
+from model.embedding_art import embed
+
+DEVICE = 'cpu'
+
 
 # %%
 # --- Configuration Loading ---
@@ -136,7 +130,7 @@ print("--- Matplotlib plt.show() patched to save figures instead. ---")
 print("--- Loading/Generating CancerFoundation Embeddings ---")
 model_embedding_key = data_keys_cfg['embedding_key_model']
 output_embedded_path = os.path.join(output_cfg['adata_embedded_dir'], output_cfg['adata_embedded_filename'])
-print(f"output_embedded_path is: {output_embedded_path}")
+
 adata = None
 if not embed_cfg['force_regenerate'] and os.path.exists(output_embedded_path):
     print(f"Loading existing embedded AnnData: {output_embedded_path}")
@@ -190,17 +184,13 @@ if adata is None:
     sc.pp.filter_genes(adata_source, min_cells=3)
     ### END: Cleaning data ###
 
-    adata_source.var_names = adata_source.var["gene_name"].values.copy() # make "gene_name" the var index"
-    adata_source = adata_source[:, ~adata_source.var.index.isna()].copy() #remove genes with no name
+    #adata_source.var_names = adata_source.var["gene_name"].values
     input_layer = embed_cfg['input_layer']
     if input_layer is not None:
         print("input_layer is {}".format(input_layer))
-        adata_source.X = adata_source.layers[input_layer].copy().toarray() # convert sparse to dense
+        adata_source.X = adata_source.layers[input_layer]
         print("adata_source.X has shape {} and values: {}".format(adata_source.X.shape,adata_source.X))
-    #if adata_source.is_view: # loading and overwritting data
-    
-    adata = adata_source.copy() # Ensure we have a copy, not a view
-    
+
 
 
     if adata is None:
@@ -210,6 +200,7 @@ if adata is None:
             model_dir=paths_cfg['model_dir'],
             batch_key=data_keys_cfg['batch_key'],
             batch_size=embed_cfg['batch_size'],
+            device=DEVICE,
             # Add any other necessary parameters for your specific 'embed' function
         )
         print("Embedding complete.")
@@ -231,33 +222,19 @@ else:
 
 
 ##### EMBEDDING FINISHED #####
+
 # %%
-
-#Filter for cells that have ground_truth
-if pp_cfg['only_cells_with_ground_truth']:
-    adata = adata[pd.isna(adata.obs[data_keys_cfg['ground_truth_key']]) == False].copy()
-    print(f'adata filtered for cells that have a ground truth value, retaining: {adata.shape}')
-
-
 # --- Calculate Neighbors and UMAP based on CancerFoundation Embedding ---
 print(f"\n--- Calculating Neighbors and UMAP based on '{model_embedding_key}' ---")
 if model_embedding_key not in adata.obsm_keys():
      raise KeyError(f"Cannot perform downstream analysis: embedding key '{model_embedding_key}' not found.")
 
-# sc.pp.neighbors(adata, use_rep=model_embedding_key, n_neighbors=pp_cfg['n_neighbors'])
+sc.pp.neighbors(adata, use_rep=model_embedding_key, n_neighbors=pp_cfg['n_neighbors'], random_state=RANDOM_SEED)
 umap_key = viz_cfg['embedding_basis'] # e.g., "X_umap_cancerfnd"
-# sc.tl.umap(adata, random_state=RANDOM_SEED, neighbors_key=None) # Use default neighbors calculation
-# neighb_within_batch=3
-# sc.external.pp.bbknn(adata, batch_key=data_keys_cfg['batch_key'], neighbors_within_batch=neighb_within_batch, metric="euclidean", use_rep=data_keys_cfg["embedding_key_model"])
-sc.pl.umap(adata, color=[data_keys_cfg['ground_truth_key'], data_keys_cfg['batch_key'], data_keys_cfg["timepoint_key"]],frameon=False,
-                 palette=sc.pl.palettes.default_102,
-                 legend_loc="right margin",
-                 return_fig=True,
-                 title=[f"CancerGPT embedding for project: {config['project_name']}"], 
-                ) # Use default neighbors calculation
+sc.tl.umap(adata, random_state=RANDOM_SEED, neighbors_key=None) # Use default neighbors calculation
 # Rename the default 'X_umap' to our specific key
-if 'X_umap' in adata.obsm_keys() and 'X_umap' != umap_key:
-    adata.obsm[umap_key] = adata.obsm['X_umap'] 
+if 'X_umap' in adata.obsm_keys():
+    adata.obsm[umap_key] = adata.obsm['X_umap']
     del adata.obsm['X_umap']
     print(f"UMAP calculated and stored in adata.obsm['{umap_key}']")
 else:
@@ -283,7 +260,7 @@ cluster_results = {} # To store labels temporarily if needed
 optimal_n_clusters = None
 if cluster_cfg['use_gmm']:
     print("--- Running Gaussian Mixture Model (GMM) ---")
-    n_components_range = range(cluster_cfg['gmm']['n_components_min'], cluster_cfg['gmm']['n_components_max']+1)
+    n_components_range = range(cluster_cfg['gmm']['n_components_min'], cluster_cfg['gmm']['n_components_max'])
     bic_scores = []
     aic_scores = []
     silhouette_scores_gmm = [] # GMM silhouette
@@ -411,136 +388,66 @@ if cluster_cfg['use_louvain']:
     if louvain_key not in cluster_cfg['clustering_keys_to_analyze']:
         cluster_cfg['clustering_keys_to_analyze'].append(louvain_key)
 
-print("--- Clustering Finished ---")
-print("Updated adata object is:")
-print(adata)
-adata.write_h5ad('midpoint_save.h5ad', compression='gzip')
 # %%
 # --- Visualization ---
-# Necessary imports for this section (assume others like AnnData (adata) are pre-loaded)
-import scanpy as sc
-import warnings
-import os
-# import matplotlib # Not strictly needed if only using sc.pl.embedding with save parameter
-
 print("\n" + "="*50)
 print("--- Generating Visualizations ---")
 print("="*50 + "\n")
 
-# --- Configure Scanpy plot settings for saving ---
-# (Assuming viz_cfg, data_keys_cfg, cluster_cfg, and adata are defined above this section)
-
-# Define the output directory for plots.
-# You can get this from viz_cfg or set a default.
-# e.g., plot_output_dir = viz_cfg.get('plot_output_dir', 'scanpy_plots_output')
-# For this example, let's assume it's 'concat/results/saved_plots' to match a potential existing structure
-# or a new desired one.
-plot_output_dir = viz_cfg.get('plot_output_dir', 'concat/results/my_saved_plots') # Or any other path
-
-# Create the directory if it doesn't exist
-if not os.path.exists(plot_output_dir):
-    os.makedirs(plot_output_dir)
-    print(f"Created plot output directory: {plot_output_dir}")
-
-sc.settings.figdir = plot_output_dir
-sc.settings.autoshow = False  # Important: Do not show plots interactively, rely on saving
-sc.settings.autosave = False  # Disable global autosave if using explicit save in each plot call
-sc.settings.file_format_figs = viz_cfg.get('plot_file_format', 'png') # e.g., 'png', 'pdf', 'svg'
-
-print(f"Scanpy plots will be saved to: {os.path.abspath(sc.settings.figdir)}")
-print(f"Scanpy plot file format: {sc.settings.file_format_figs}")
-# --- End of Scanpy plot settings configuration ---
-
-umap_key = viz_cfg.get('embedding_basis') # Use .get() for safety
-
-if not umap_key:
-    warnings.warn(f"'embedding_basis' not found or is None in viz_cfg. Skipping UMAP plots.")
-elif umap_key not in adata.obsm:
-    warnings.warn(f"UMAP key '{umap_key}' not found in adata.obsm. Skipping UMAP plots.")
+umap_key = viz_cfg['embedding_basis']
+if umap_key not in adata.obsm:
+    warnings.warn(f"UMAP key '{umap_key}' not found. Skipping UMAP plots.")
 else:
-    print(f"Plotting UMAPs based on '{umap_key}' and saving to '{sc.settings.figdir}'...")
-
-    # Helper to generate a save filename component for sc.pl.embedding
-    # The 'save' parameter in sc.pl.embedding typically expects a suffix like "_description.png"
-    # It will be prepended by sc.settings.figdir and the basis name (e.g., "umap_").
-    def get_save_filename_suffix(description_parts):
-        # Sanitize parts and join them for the suffix part of the filename
-        # Replace problematic characters for filenames
-        safe_parts = [str(p).replace(' ', '_').replace('/', '-').replace('.', '_') for p in description_parts if p]
-        filename_core = "_".join(safe_parts)
-        return f"_{filename_core}.{sc.settings.file_format_figs}"
+    print(f"Plotting UMAPs based on '{umap_key}'...")
 
     # Plot by Ground Truth
-    ground_truth_obs_key = data_keys_cfg.get('ground_truth_key')
-    if ground_truth_obs_key and ground_truth_obs_key in adata.obs:
-        save_suffix = get_save_filename_suffix(["ground_truth", ground_truth_obs_key])
-        print(f"Plotting UMAP colored by '{ground_truth_obs_key}', saving with suffix '{data_keys_cfg["ground_truth_key"]}'...")
-        sc.pl.embedding(adata, basis=umap_key, color=ground_truth_obs_key,
-                       legend_loc='on data', legend_fontsize=8, title=f'Ground Truth ({ground_truth_obs_key})',
-                       save=f'Ground_Truth_({data_keys_cfg["ground_truth_key"]})')
-    elif ground_truth_obs_key: # Key was configured but not found in adata.obs
-        print(f"Skipping ground truth UMAP plot: key '{ground_truth_obs_key}' not found in adata.obs.")
-    else: # Key was not configured
-        print("Skipping ground truth UMAP plot: 'ground_truth_key' not configured or is None in data_keys_cfg.")
+    if data_keys_cfg['ground_truth_key'] in adata.obs:
+        print(f"Plotting UMAP colored by '{data_keys_cfg['ground_truth_key']}'...")
+        sc.pl.embedding(adata, basis=umap_key, color=data_keys_cfg['ground_truth_key'],
+                       legend_loc='on data', legend_fontsize=8, title=f'Ground Truth ({data_keys_cfg["ground_truth_key"]})',
+                       save = f'Ground Truth ({data_keys_cfg["ground_truth_key"]})')
+        plt.show()
+    else:
+        print(f"Skipping ground truth UMAP plot: key '{data_keys_cfg['ground_truth_key']}' not found.")
 
     # Plot by Batch Key
-    batch_key_obs_key = data_keys_cfg.get('batch_key')
-    if batch_key_obs_key and batch_key_obs_key in adata.obs:
-        save_suffix = get_save_filename_suffix(["batch", batch_key_obs_key])
-        print(f"Plotting UMAP colored by '{batch_key_obs_key}', saving with suffix '{data_keys_cfg["batch_key"]}'...")
-        sc.pl.embedding(adata, basis=umap_key, color=batch_key_obs_key,
-                       title=f'Batch Key ({batch_key_obs_key})',
-                       save=f'Batch Key ({data_keys_cfg["batch_key"]})')
-    elif batch_key_obs_key:
-        print(f"Skipping batch key UMAP plot: key '{batch_key_obs_key}' not found in adata.obs.")
+    if data_keys_cfg['batch_key'] in adata.obs:
+        print(f"Plotting UMAP colored by '{data_keys_cfg['batch_key']}'...")
+        sc.pl.embedding(adata, basis=umap_key, color=data_keys_cfg['batch_key'],
+                       title=f'Batch Key ({data_keys_cfg["batch_key"]})', save = f'Batch Key ({data_keys_cfg["batch_key"]})')
+        plt.show()
     else:
-        print("Skipping batch key UMAP plot: 'batch_key' not configured or is None in data_keys_cfg.")
+        print(f"Skipping batch key UMAP plot: key '{data_keys_cfg['batch_key']}' not found.")
 
     # Plot by Timepoint Key
-    timepoint_key_obs_key = data_keys_cfg.get('timepoint_key')
-    if timepoint_key_obs_key and timepoint_key_obs_key in adata.obs:
-        save_suffix = get_save_filename_suffix(["timepoint", timepoint_key_obs_key])
-        print(f"Plotting UMAP colored by '{timepoint_key_obs_key}', saving with suffix '{data_keys_cfg["timepoint_key"]}'...")
-        sc.pl.embedding(adata, basis=umap_key, color=timepoint_key_obs_key,
-                       title=f'Timepoint ({timepoint_key_obs_key})',
-                       save=f'Timepoint ({data_keys_cfg["timepoint_key"]})')
-    elif timepoint_key_obs_key:
-        print(f"Skipping timepoint key UMAP plot: key '{timepoint_key_obs_key}' not found in adata.obs.")
+    if data_keys_cfg['timepoint_key'] in adata.obs:
+        print(f"Plotting UMAP colored by '{data_keys_cfg['timepoint_key']}'...")
+        sc.pl.embedding(adata, basis=umap_key, color=data_keys_cfg['timepoint_key'],
+                       title=f'Timepoint ({data_keys_cfg["timepoint_key"]})', save = f'Timepoint ({data_keys_cfg["timepoint_key"]})')
+        plt.show()
     else:
-        print("Skipping timepoint key UMAP plot: 'timepoint_key' not configured or is None in data_keys_cfg.")
+        print(f"Skipping timepoint key UMAP plot: key '{data_keys_cfg['timepoint_key']}' not found.")
+
 
     # Plot by Generated Clusters
-    clustering_keys_to_analyze = cluster_cfg.get('clustering_keys_to_analyze', [])
-    if not isinstance(clustering_keys_to_analyze, list): # Basic check for iterability
-        warnings.warn(f"'clustering_keys_to_analyze' in cluster_cfg (value: {clustering_keys_to_analyze}) is not a list or is missing. Skipping cluster plots.")
-        clustering_keys_to_analyze = []
-        
-    for cluster_key_name in clustering_keys_to_analyze:
-        if cluster_key_name in adata.obs:
-            save_suffix = get_save_filename_suffix(["cluster", cluster_key_name])
-            print(f"Plotting UMAP colored by '{cluster_key_name}', saving with suffix '{cluster_key}'...")
-            sc.pl.embedding(adata, basis=umap_key, color=cluster_key_name,
-                           legend_loc='on data', legend_fontsize=8, title=f'Cluster: {cluster_key_name}',
-                           save=f'Cluster: {cluster_key}')
+    for cluster_key in cluster_cfg['clustering_keys_to_analyze']:
+        if cluster_key in adata.obs:
+            print(f"Plotting UMAP colored by '{cluster_key}'...")
+            sc.pl.embedding(adata, basis=umap_key, color=cluster_key,
+                           legend_loc='on data', legend_fontsize=8, title=f'Cluster: {cluster_key}', save=f'Cluster: {cluster_key}')
+            plt.show()
         else:
-            print(f"Skipping cluster UMAP plot: key '{cluster_key_name}' not found in adata.obs.")
+            print(f"Skipping cluster UMAP plot: key '{cluster_key}' not found.")
 
     # Plot GMM Entropy if available
-    gmm_entropy_obs_key = 'GMM_entropy' # Fixed key name
-    if gmm_entropy_obs_key in adata.obs:
-        save_suffix = get_save_filename_suffix([gmm_entropy_obs_key]) # Simpler name for single metric
-        print(f"Plotting UMAP colored by GMM Entropy, saving with suffix '{save_suffix}'...")
-        sc.pl.embedding(adata, basis=umap_key, color=gmm_entropy_obs_key, cmap='viridis',
-                       title='GMM Assignment Entropy',
-                       save=f'GMM_{save_suffix}')
-    else:
-        # This is not an error, just an optional plot
-        print(f"Skipping GMM Entropy plot: '{gmm_entropy_obs_key}' not found in adata.obs.")
+    if 'GMM_entropy' in adata.obs:
+        print("Plotting UMAP colored by GMM Entropy...")
+        sc.pl.embedding(adata, basis=umap_key, color='GMM_entropy', cmap='viridis',
+                       title='GMM Assignment Entropy', save='GMM Assignment Entropy')
+        plt.show()
 
-print("\n" + "="*50)
-print("--- Visualization Generation and Saving Complete ---")
-print(f"--- Plots have been saved in: {os.path.abspath(sc.settings.figdir)} ---")
-print("="*50 + "\n")
+
+
 
 # %%
 # --- Evaluation Against Ground Truth ---
@@ -683,7 +590,8 @@ else:
         plt.savefig(comp_fig_path, dpi=viz_cfg['figure_dpi'])
         plt.close()
         print(f"Saved composition plot to {comp_fig_path}")
-"""
+
+# %%
 # --- Latent Dimension Interpretability ---
 print("\n" + "="*50)
 print("--- Latent Dimension Interpretability ---")
@@ -692,288 +600,186 @@ print("="*50 + "\n")
 interp_dir = output_cfg['interpretability_output_dir']
 timepoint_key = data_keys_cfg['timepoint_key']
 timepoint_pre = data_keys_cfg['timepoint_pre']
-timepoint_post = data_keys_cfg['timepoint_post'] # This can be a string or a list
+timepoint_post = data_keys_cfg['timepoint_post']
 
-dim_correlations = pd.DataFrame() # Initialize, will be populated if correlation runs
-top_dims_info = [] # Store info about top correlated dimensions
-
-if not interp_cfg.get('correlate_dims_with_timepoint', False) and not interp_cfg.get('perform_deg_analysis', False):
-     print("Skipping interpretability analysis: 'correlate_dims_with_timepoint' and 'perform_deg_analysis' are both False in config.")
+if not interp_cfg['correlate_dims_with_timepoint'] and not interp_cfg['perform_deg_analysis']:
+     print("Skipping interpretability analysis as configured.")
 elif model_embedding_key not in adata.obsm:
-     warnings.warn(f"Skipping interpretability: Embedding key '{model_embedding_key}' not found in adata.obsm.")
+     warnings.warn(f"Skipping interpretability: Embedding key '{model_embedding_key}' not found.")
 elif timepoint_key not in adata.obs:
-     warnings.warn(f"Skipping interpretability: Timepoint key '{timepoint_key}' not found in adata.obs.")
+     warnings.warn(f"Skipping interpretability: Timepoint key '{timepoint_key}' not found.")
 else:
     latent_dims = adata.obsm[model_embedding_key]
-    if not isinstance(latent_dims, np.ndarray): # Ensure it's a numpy array for processing
-        warnings.warn(f"Latent dimensions at adata.obsm['{model_embedding_key}'] are not a NumPy array. Attempting to convert.")
-        try:
-            latent_dims = np.array(latent_dims)
-        except Exception as e:
-            # If conversion fails, we cannot proceed with numerical operations
-            warnings.warn(f"Could not convert latent_dims to NumPy array: {e}. Skipping interpretability analysis.")
-            # Set a flag or exit this block if this is critical
-            latent_dims = None # Or handle error more gracefully
+    n_dims = latent_dims.shape[1]
+    dim_correlations = {}
+    top_dims_info = [] # Store info about top correlated dimensions
 
-    if latent_dims is not None:
-        n_dims = latent_dims.shape[1]
-
-        # --- Correlate Latent Dims with Timepoint ---
-        if interp_cfg.get('correlate_dims_with_timepoint', False):
-            print(f"--- Correlating {n_dims} Latent Dimensions with Timepoint ({timepoint_key}) ---")
-
-            unique_adata_timepoints = set(adata.obs[timepoint_key].astype(str).unique()) # Ensure string comparison
-            pre_timepoint_str = str(timepoint_pre) # Ensure pre_timepoint is string for comparison
-
-            pre_found = pre_timepoint_str in unique_adata_timepoints
-
-            actual_post_labels_in_data = []
-            if isinstance(timepoint_post, str):
-                if str(timepoint_post) in unique_adata_timepoints:
-                    actual_post_labels_in_data.append(str(timepoint_post))
-            elif isinstance(timepoint_post, (list, tuple)):
-                for p_val in timepoint_post:
-                    if str(p_val) in unique_adata_timepoints:
-                        actual_post_labels_in_data.append(str(p_val))
-
-            if not pre_found or not actual_post_labels_in_data:
-                warnings.warn(
-                    f"Cannot perform correlation: Timepoint '{pre_timepoint_str}' (pre) or specified "
-                    f"post-treatment timepoint(s) {timepoint_post} not adequately represented in '{timepoint_key}'. "
-                    f"Unique timepoints in data: {list(unique_adata_timepoints)}. "
-                    f"Ensure '{pre_timepoint_str}' and at least one of {actual_post_labels_in_data if actual_post_labels_in_data else timepoint_post} are present."
-                )
-            else:
-                mapping_dict = {pre_timepoint_str: 0}
-                for post_val in actual_post_labels_in_data: # Map all found post-treatment labels to 1
-                    mapping_dict[post_val] = 1
-
-                timepoint_numeric = adata.obs[timepoint_key].astype(str).map(mapping_dict)
-                valid_idx = timepoint_numeric.notna() # Indices of cells belonging to pre or mapped post groups
-
-                if valid_idx.sum() < 2: # Need at least two points to correlate
-                     warnings.warn("Not enough valid timepoint data points (mapped to 0 or 1) for correlation.")
-                else:
-                    latent_dims_valid = latent_dims[valid_idx]
-                    timepoint_numeric_valid = timepoint_numeric[valid_idx]
-
-                    corrs = []
-                    pvals = []
-                    for i in range(n_dims):
-                        dim_values_for_corr = latent_dims_valid[:, i]
-                        # Ensure there's variance in both series for pearsonr
-                        if np.isnan(dim_values_for_corr).any() or np.isinf(dim_values_for_corr).any():
-                            corrs.append(np.nan)
-                            pvals.append(np.nan)
-                            warnings.warn(f"NaN or Inf found in latent dimension {i}, skipping correlation for this dim.")
-                            continue
-                        if len(np.unique(dim_values_for_corr)) < 2 or len(np.unique(timepoint_numeric_valid)) < 2:
-                            corrs.append(np.nan)
-                            pvals.append(np.nan)
-                            # warnings.warn(f"Skipping correlation for dim {i}: Not enough variance in dimension values or timepoint values.")
-                            continue
-
-                        try:
-                             corr, pval = pearsonr(dim_values_for_corr, timepoint_numeric_valid)
-                             corrs.append(corr)
-                             pvals.append(pval)
-                        except ValueError as e:
-                             warnings.warn(f"Could not calculate correlation for dimension {i}: {e}")
-                             corrs.append(np.nan)
-                             pvals.append(np.nan)
-
-                    if any(not np.isnan(c) for c in corrs): # If any correlations were actually computed
-                        dim_correlations = pd.DataFrame({
-                            'Dimension': range(n_dims),
-                            'Correlation': corrs,
-                            'PValue': pvals
-                        })
-                        dim_correlations['AbsCorrelation'] = dim_correlations['Correlation'].abs()
-                        dim_correlations = dim_correlations.sort_values('AbsCorrelation', ascending=False, na_position='last').reset_index(drop=True)
-
-                        print("\nTop Latent Dimensions Correlated with Timepoint:")
-                        n_top_dims_to_show_corr = interp_cfg.get('n_top_dims', 5)
-                        print(dim_correlations.head(n_top_dims_to_show_corr).to_markdown(index=False, floatfmt=".4f"))
-
-                        corr_output_filename = interp_cfg.get('correlation_filename', 'latent_dim_timepoint_correlations.csv')
-                        corr_output_path = os.path.join(interp_dir, corr_output_filename)
-                        dim_correlations.to_csv(corr_output_path, index=False)
-                        print(f"Full correlation results saved to {corr_output_path}")
-
-                        top_dims_info = dim_correlations.dropna(subset=['Correlation']).head(n_top_dims_to_show_corr)['Dimension'].tolist()
-                    else:
-                        warnings.warn("No valid correlations could be computed for any dimension.")
+    # --- Correlate Latent Dims with Timepoint ---
+    if interp_cfg['correlate_dims_with_timepoint']:
+        print(f"--- Correlating {n_dims} Latent Dimensions with Timepoint ({timepoint_key}) ---")
+        if timepoint_pre not in adata.obs[timepoint_key].unique() or \
+           timepoint_post not in adata.obs[timepoint_key].unique():
+            warnings.warn(f"Cannot perform correlation: One or both timepoints ('{timepoint_pre}', '{timepoint_post}') not found in '{timepoint_key}'.")
         else:
-            print("Skipping correlation of latent dimensions with timepoint as 'correlate_dims_with_timepoint' is False.")
+            # Create numerical representation of timepoint
+            timepoint_numeric = adata.obs[timepoint_key].map({timepoint_pre: 0, timepoint_post: 1})
+            # Keep only non-NaN values (cells belonging to pre or post)
+            valid_idx = timepoint_numeric.notna()
+            if valid_idx.sum() < 2:
+                 warnings.warn("Not enough valid timepoint data points for correlation.")
+            else:
+                latent_dims_valid = latent_dims[valid_idx]
+                timepoint_numeric_valid = timepoint_numeric[valid_idx]
 
-
-        # --- DEG Analysis and Pathway Enrichment for Top Dimensions ---
-        if interp_cfg.get('perform_deg_analysis', False) and top_dims_info:
-            print(f"\n--- Performing DEG Analysis for Top {len(top_dims_info)} Correlated Dimensions ---")
-
-            attempt_pathway_enrichment_overall = False
-            enrichr_libraries_to_use = []
-
-            if interp_cfg.get('perform_pathway_enrichment', False):
-                if gseapy is None:
-                     warnings.warn("gseapy not installed. Pathway enrichment will be skipped for all dimensions.")
-                else:
-                    configured_enrichr_libs = interp_cfg.get('enrichr_libraries')
-                    if configured_enrichr_libs and isinstance(configured_enrichr_libs, list) and len(configured_enrichr_libs) > 0:
-                        attempt_pathway_enrichment_overall = True
-                        enrichr_libraries_to_use = configured_enrichr_libs
-                        print(f"INFO: Pathway enrichment is enabled and will use Enrichr libraries: {enrichr_libraries_to_use}")
-                    else:
-                        warnings.warn("WARNING: Pathway enrichment is enabled ('perform_pathway_enrichment: True'), "
-                                      "but 'interpretability.enrichr_libraries' is missing, empty, or not a list in the config. "
-                                      "Pathway enrichment will be skipped for all dimensions.")
-
-            for dim_idx in top_dims_info:
-                current_dim_corr_info = None
-                if not dim_correlations.empty and 'Dimension' in dim_correlations.columns:
-                    match_series = dim_correlations['Dimension'] == dim_idx
-                    if match_series.any():
-                        current_dim_corr_info = dim_correlations[match_series].iloc[0]
-
-                if current_dim_corr_info is not None and not pd.isna(current_dim_corr_info['Correlation']):
-                    corr_value = current_dim_corr_info['Correlation']
-                    pval_value = current_dim_corr_info['PValue']
-                    corr_direction = "Positively" if corr_value > 0 else "Negatively"
-                    print(f"\nAnalyzing Dimension {dim_idx} ({corr_direction} correlated with post-treatment state, "
-                          f"Corr={corr_value:.3f}, PVal={pval_value:.2E})")
-                else:
-                    print(f"\nAnalyzing Dimension {dim_idx} (correlation details might be unavailable or NaN)")
-
-                dim_values_for_grouping = latent_dims[:, dim_idx]
-                if np.std(dim_values_for_grouping) < 1e-9 or len(np.unique(dim_values_for_grouping)) < 10: # Increased threshold slightly
-                    warnings.warn(f"Skipping DEG for Dim {dim_idx}: Low variance or too few unique values in dimension scores.")
-                    continue
-
-                q_low = np.percentile(dim_values_for_grouping, 25)
-                q_high = np.percentile(dim_values_for_grouping, 75)
-                temp_group_key = f'dim_{dim_idx}_group' # Temporary column name
-
-                if q_low == q_high: # Handle cases where quantiles are identical
-                    if len(np.unique(dim_values_for_grouping)) > 1: # If there's still some variance
-                        median_val = np.median(dim_values_for_grouping)
-                        # Create two groups based on median; this might result in uneven groups
-                        adata.obs[temp_group_key] = np.where(dim_values_for_grouping > median_val, 'High', 'Low')
-                        # Ensure 'High' and 'Low' are present, if not, this split is problematic
-                        if 'High' not in adata.obs[temp_group_key].unique() or 'Low' not in adata.obs[temp_group_key].unique():
-                             warnings.warn(f"Skipping DEG for Dim {dim_idx}: Median split did not yield distinct High/Low groups.")
-                             if temp_group_key in adata.obs: del adata.obs[temp_group_key]
-                             continue
-                    else: # No variance at all
-                        warnings.warn(f"Skipping DEG for Dim {dim_idx}: 25th and 75th percentiles are identical, and no variance in data to split by median.")
+                corrs = []
+                pvals = []
+                for i in range(n_dims):
+                    # Ensure the latent dim values are also valid numbers
+                    dim_values = latent_dims_valid[:, i]
+                    if np.isnan(dim_values).any() or np.isinf(dim_values).any():
+                        corrs.append(np.nan)
+                        pvals.append(np.nan)
+                        warnings.warn(f"NaN or Inf found in latent dimension {i}, skipping correlation.")
                         continue
-                else:
-                    adata.obs[temp_group_key] = 'Middle'
-                    adata.obs.loc[dim_values_for_grouping <= q_low, temp_group_key] = 'Low'
-                    adata.obs.loc[dim_values_for_grouping >= q_high, temp_group_key] = 'High'
 
-                adata.obs[temp_group_key] = adata.obs[temp_group_key].astype('category')
-                group_counts = adata.obs[temp_group_key].value_counts()
+                    try:
+                         corr, pval = pearsonr(dim_values, timepoint_numeric_valid)
+                         corrs.append(corr)
+                         pvals.append(pval)
+                    except ValueError as e:
+                         warnings.warn(f"Could not calculate correlation for dimension {i}: {e}")
+                         corrs.append(np.nan)
+                         pvals.append(np.nan)
 
-                if group_counts.get('High', 0) < 3 or group_counts.get('Low', 0) < 3:
-                    warnings.warn(f"Skipping DEG for Dim {dim_idx}: Fewer than 3 cells in 'High' or 'Low' group. Counts: {group_counts.to_dict()}")
-                    if temp_group_key in adata.obs: del adata.obs[temp_group_key]
-                    continue
 
-                print(f"  Running DEG analysis (High vs Low) for Dim {dim_idx}...")
-                try:
-                    deg_layer = config.get('embedding', {}).get('input_layer') # Use layer from embedding section if specified for source data
-                    if deg_layer and deg_layer not in adata.layers:
-                        warnings.warn(f"  Layer '{deg_layer}' specified for DEG not found in adata.layers. Using adata.X.")
-                        deg_layer = None
-                    elif deg_layer:
-                        print(f"  Using layer '{deg_layer}' for DEG analysis.")
+                dim_correlations = pd.DataFrame({
+                    'Dimension': range(n_dims),
+                    'Correlation': corrs,
+                    'PValue': pvals,
+                    'AbsCorrelation': np.abs(corrs)
+                }).sort_values('AbsCorrelation', ascending=False).reset_index(drop=True)
 
-                    rank_genes_key = f'rank_genes_dim_{dim_idx}'
-                    sc.tl.rank_genes_groups(adata, groupby=temp_group_key, use_raw=False, groups=['High'], reference='Low',
-                                          method='wilcoxon', key_added=rank_genes_key,
-                                          layer=deg_layer, n_genes=adata.n_vars, pts=True)
+                print("\nTop Latent Dimensions Correlated with Timepoint:")
+                print(dim_correlations.head(interp_cfg['n_top_dims']).to_markdown(index=False, floatfmt=".4f"))
 
-                    deg_results_df = sc.get.rank_genes_groups_df(adata, group='High', key=rank_genes_key)
-                    deg_results_df['logfoldchanges'] = pd.to_numeric(deg_results_df['logfoldchanges'], errors='coerce')
-                    deg_results_df = deg_results_df.dropna(subset=['logfoldchanges'])
-                    deg_results_df = deg_results_df.sort_values('pvals_adj')
+                corr_output_path = os.path.join(interp_dir, 'latent_dim_timepoint_correlations.csv')
+                dim_correlations.to_csv(corr_output_path, index=False)
+                print(f"Full correlation results saved to {corr_output_path}")
 
-                    deg_pval_thresh = interp_cfg.get('deg_pval_threshold', 0.05)
-                    deg_lfc_thresh = interp_cfg.get('deg_lfc_threshold', 0.25)
-                    sig_genes_df = deg_results_df[
-                        (deg_results_df['pvals_adj'] < deg_pval_thresh) &
-                        (np.abs(deg_results_df['logfoldchanges']) > deg_lfc_thresh)
-                    ]
-                    print(f"  Found {len(sig_genes_df)} significant DEGs (adj. p < {deg_pval_thresh}, |LFC| > {deg_lfc_thresh}).")
+                # Store info for DEG/Enrichment
+                top_dims_info = dim_correlations.head(interp_cfg['n_top_dims'])['Dimension'].tolist()
 
-                    n_top_degs_report = interp_cfg.get('n_top_genes_deg', 50)
-                    top_degs_for_output = sig_genes_df.head(n_top_degs_report)
 
-                    if not top_degs_for_output.empty and 'names' in top_degs_for_output.columns:
-                        print(f"  Top {len(top_degs_for_output)} DEGs for Dim {dim_idx} (sorted by adj. p-val):")
-                        print(top_degs_for_output[['names', 'logfoldchanges', 'pvals_adj']].to_markdown(index=False, floatfmt=".3G"))
-                        deg_filename = f'dim_{dim_idx}_top_{len(top_degs_for_output)}_degs.csv'
-                        deg_output_path = os.path.join(interp_dir, deg_filename)
-                        top_degs_for_output.to_csv(deg_output_path, index=False)
-                        print(f"  Top DEGs saved to {deg_output_path}")
-                    elif sig_genes_df.empty:
-                        print(f"  No DEGs met the significance criteria for Dim {dim_idx}.")
+    # --- DEG Analysis and Pathway Enrichment for Top Dimensions ---
+    # Check if we should proceed and have identified top dimensions
+    if interp_cfg['perform_deg_analysis'] and top_dims_info:
+        print(f"\n--- Performing DEG Analysis for Top {len(top_dims_info)} Correlated Dimensions ---")
 
-                    # --- Pathway Enrichment ---
-                    genes_for_enrichment_df = sig_genes_df # Use all significant DEGs for enrichment
+        # Ensure necessary tools are available
+        if interp_cfg['perform_pathway_enrichment'] and gseapy is None:
+             warnings.warn("gseapy not installed. Skipping pathway enrichment.")
+             perform_enrichment = False
+        else:
+             perform_enrichment = interp_cfg['perform_pathway_enrichment']
+             # Check for gene sets file if enrichment is requested
+             if perform_enrichment and not os.path.exists(paths_cfg['gene_sets_gmt']):
+                 warnings.warn(f"Gene sets file not found at '{paths_cfg['gene_sets_gmt']}'. Skipping pathway enrichment.")
+                 perform_enrichment = False
 
-                    if attempt_pathway_enrichment_overall and not genes_for_enrichment_df.empty:
-                        if 'names' in genes_for_enrichment_df.columns and not genes_for_enrichment_df['names'].empty:
-                            gene_list_for_enrichment = genes_for_enrichment_df['names'].tolist()
-                            gsea_organism = interp_cfg.get('gsea_organism', 'human')
-                            print(f"  Performing GSEApy enrichment for Dim {dim_idx} using {len(gene_list_for_enrichment)} DEGs (Organism: {gsea_organism})...")
-                            try:
-                                enrichment_outdir_dim = os.path.join(interp_dir, f'enrichr_dim_{dim_idx}')
-                                # gseapy.enrichr creates outdir if it doesn't exist
-                                enr_results = gseapy.enrichr(gene_list=gene_list_for_enrichment,
-                                                             gene_sets=enrichr_libraries_to_use,
-                                                             organism=gsea_organism,
-                                                             outdir=enrichment_outdir_dim,
-                                                             cutoff=0.05, # p-value cutoff for results table
-                                                             verbose=False)
 
-                                if enr_results and hasattr(enr_results, 'results') and not enr_results.results.empty:
-                                    print(f"  Enrichment Results from GSEApy (Top 10 by Adj. P-value):")
-                                    sorted_enrich_results = enr_results.results.sort_values('Adjusted P-value').reset_index(drop=True)
-                                    print(sorted_enrich_results.head(10).to_markdown(index=False, floatfmt=".2E"))
-                                    combined_results_filename = interp_cfg.get('enrichment_results_filename', 'gseapy_enrichr_combined_results.csv')
-                                    combined_results_path = os.path.join(enrichment_outdir_dim, combined_results_filename)
-                                    enr_results.results.to_csv(combined_results_path, index=False)
-                                    print(f"  Full GSEApy Enrichr results DataFrame saved to: {combined_results_path}")
-                                    print(f"  Individual library plots/tables saved by GSEApy in: {enrichment_outdir_dim}")
-                                else:
-                                    print("  No significant enrichment results found by GSEApy or results table was empty.")
-                            except Exception as e:
-                                warnings.warn(f"  GSEApy Enrichr failed for Dim {dim_idx}: {e}")
+        for dim_idx in top_dims_info:
+            dim_values = latent_dims[:, dim_idx]
+            dim_corr_info = dim_correlations[dim_correlations['Dimension'] == dim_idx].iloc[0]
+            corr_direction = "Positively" if dim_corr_info['Correlation'] > 0 else "Negatively"
+            print(f"\nAnalyzing Dimension {dim_idx} ({corr_direction} correlated with {timepoint_post}, Corr={dim_corr_info['Correlation']:.3f}, P={dim_corr_info['PValue']:.2E})")
+
+            # Create groups based on quantiles of the dimension's values
+            # Avoid issues with zero variance or too few unique values
+            if np.std(dim_values) < 1e-6 or len(np.unique(dim_values)) < 10:
+                warnings.warn(f"Skipping DEG for Dim {dim_idx}: Low variance or too few unique values.")
+                continue
+
+            q_low = np.percentile(dim_values, 25)
+            q_high = np.percentile(dim_values, 75)
+            adata.obs[f'dim_{dim_idx}_group'] = 'Middle'
+            adata.obs.loc[dim_values <= q_low, f'dim_{dim_idx}_group'] = 'Low'
+            adata.obs.loc[dim_values >= q_high, f'dim_{dim_idx}_group'] = 'High'
+            adata.obs[f'dim_{dim_idx}_group'] = adata.obs[f'dim_{dim_idx}_group'].astype('category')
+
+            # Check if we have enough cells in high/low groups
+            if adata.obs[f'dim_{dim_idx}_group'].value_counts().get('High', 0) < 3 or \
+               adata.obs[f'dim_{dim_idx}_group'].value_counts().get('Low', 0) < 3:
+                warnings.warn(f"Skipping DEG for Dim {dim_idx}: Fewer than 3 cells in High or Low group.")
+                # Clean up temporary column
+                del adata.obs[f'dim_{dim_idx}_group']
+                continue
+
+            # Perform DEG analysis (High vs Low)
+            print(f"  Running DEG analysis (High vs Low) for Dim {dim_idx}...")
+            try:
+                sc.tl.rank_genes_groups(adata, groupby=f'dim_{dim_idx}_group', groups=['High'], reference='Low',
+                                      method='wilcoxon', key_added=f'rank_genes_dim_{dim_idx}', n_genes=adata.n_vars) # Rank all genes
+
+                # Extract results
+                deg_results = sc.get.rank_genes_groups_df(adata, group='High', key=f'rank_genes_dim_{dim_idx}')
+                deg_results = deg_results.sort_values('pvals_adj') # Sort by adjusted p-value
+
+                # Filter significant genes
+                sig_genes = deg_results[
+                    (deg_results['pvals_adj'] < interp_cfg['deg_pval_threshold']) &
+                    (np.abs(deg_results['logfoldchanges']) > interp_cfg['deg_lfc_threshold'])
+                ]
+                print(f"  Found {len(sig_genes)} significant DEGs (adj. p < {interp_cfg['deg_pval_threshold']}, |LFC| > {interp_cfg['deg_lfc_threshold']}).")
+
+                # Save top DEGs
+                top_n_genes = min(interp_cfg['n_top_genes_deg'], len(sig_genes))
+                top_degs = sig_genes.head(top_n_genes)
+                print(f"  Top {top_n_genes} DEGs for Dim {dim_idx} (sorted by adj. p-val):")
+                print(top_degs[['names', 'logfoldchanges', 'pvals_adj']].to_markdown(index=False, floatfmt=".3f"))
+
+                deg_output_path = os.path.join(interp_dir, f'dim_{dim_idx}_top_degs.csv')
+                top_degs.to_csv(deg_output_path, index=False)
+                print(f"  Top DEGs saved to {deg_output_path}")
+
+                # --- Pathway Enrichment ---
+                if perform_enrichment and not top_degs.empty:
+                    print(f"  Performing GSEApy enrichment for Dim {dim_idx}...")
+                    gene_list = top_degs['names'].tolist()
+                    try:
+                        # Using Enrichr (simpler, requires internet)
+                        enr = gseapy.enrichr(gene_list=gene_list,
+                                             gene_sets=paths_cfg['gene_sets_gmt'], # Use local GMT
+                                             organism=interp_cfg['gsea_organism'],
+                                             outdir=os.path.join(interp_dir, f'enrichr_dim_{dim_idx}'),
+                                             cutoff=0.05) # P-value cutoff for Enrichr
+
+                        if enr and not enr.results.empty:
+                            print(f"  Enrichment Results (Top 10 by Adj. P-value):")
+                            print(enr.results.head(10).to_markdown(index=False, floatfmt=".3f"))
+                            # Full results are saved by gseapy in the outdir
+                            enrich_path = os.path.join(interp_dir, f'enrichr_dim_{dim_idx}', 'enrichr_results.csv')
+                            # gseapy saves automatically, but let's save our filtered view too
+                            enr.results.to_csv(enrich_path)
+                            print(f"  Full enrichment results saved in: {os.path.join(interp_dir, f'enrichr_dim_{dim_idx}')}")
                         else:
-                            print(f"  Skipping pathway enrichment for Dim {dim_idx}: No valid gene names in DEGs list.")
-                    elif interp_cfg.get('perform_pathway_enrichment', False) and genes_for_enrichment_df.empty:
-                        print(f"  Skipping pathway enrichment for Dim {dim_idx}: No significant DEGs found.")
+                            print("  No significant enrichment results found.")
 
-                except Exception as e:
-                     warnings.warn(f"  DEG analysis or subsequent enrichment failed for Dim {dim_idx}: {e}")
-                finally:
-                    if temp_group_key in adata.obs:
-                         del adata.obs[temp_group_key]
-                    # Optionally clean up adata.uns[rank_genes_key] if space is a concern
+                    except Exception as e:
+                        warnings.warn(f"  GSEApy Enrichr failed for Dim {dim_idx}: {e}")
 
-        elif interp_cfg.get('perform_deg_analysis', False) and not top_dims_info:
-             print("Skipping DEG analysis (and pathway enrichment): No top correlated dimensions identified or correlation step was skipped/failed.")
-        elif not interp_cfg.get('perform_deg_analysis', False):
-             print("Skipping DEG analysis (and pathway enrichment) as 'perform_deg_analysis' is False.")
+            except Exception as e:
+                 warnings.warn(f"  DEG analysis failed for Dim {dim_idx}: {e}")
 
-    else: # if latent_dims was None due to conversion failure
-        print("Skipping interpretability analysis because latent dimensions could not be processed.")
+            # Clean up temporary grouping column
+            if f'dim_{dim_idx}_group' in adata.obs:
+                 del adata.obs[f'dim_{dim_idx}_group']
+            # Clean up rank genes results from adata if desired (optional)
+            # if f'rank_genes_dim_{dim_idx}' in adata.uns:
+            #     del adata.uns[f'rank_genes_dim_{dim_idx}']
 
-print("\n" + "="*50)
-print("--- Interpretability Analysis Potentially Complete ---")
-print("="*50 + "\n")
-"""
+    elif interp_cfg['perform_deg_analysis'] and not top_dims_info:
+         print("Skipping DEG analysis: No top correlated dimensions identified or correlation step was skipped.")
+
 
 # %%
 # --- scIB Benchmark ---
@@ -1034,7 +840,6 @@ else:
         # Plot and save results
         print("Plotting scIB results table...")
         results_table_path = os.path.join(output_cfg['benchmarking_output_dir'], "scib_results_table")
-        os.makedirs(results_table_path, exist_ok=True)
         bm.plot_results_table(min_max_scale=False, save_dir=results_table_path) # Saves plot and csv
 
         # You can access the results dataframe directly:
@@ -1042,7 +847,6 @@ else:
         print("\n--- scIB Benchmark Results ---")
         print(results_df.to_markdown(floatfmt=".4f"))
         results_csv_path = os.path.join(output_cfg['benchmarking_output_dir'], 'scib_results_summary.csv')
-        os.makedirs(results_csv_path, exist_ok=True)
         results_df.to_csv(results_csv_path)
         print(f"scIB results summary saved to {results_csv_path}")
 
