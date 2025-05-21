@@ -518,10 +518,10 @@ else:
     for cluster_key_name in clustering_keys_to_analyze:
         if cluster_key_name in adata.obs:
             save_suffix = get_save_filename_suffix(["cluster", cluster_key_name])
-            print(f"Plotting UMAP colored by '{cluster_key_name}', saving with suffix '{cluster_key}'...")
+            print(f"Plotting UMAP colored by '{cluster_key_name}', saving with suffix '{cluster_key_name}'...")
             sc.pl.embedding(adata, basis=umap_key, color=cluster_key_name,
                            legend_loc='on data', legend_fontsize=8, title=f'Cluster: {cluster_key_name}',
-                           save=f'Cluster: {cluster_key}')
+                           save=f'Cluster: {cluster_key_name}')
         else:
             print(f"Skipping cluster UMAP plot: key '{cluster_key_name}' not found in adata.obs.")
 
