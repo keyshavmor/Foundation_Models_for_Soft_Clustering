@@ -6,18 +6,18 @@ random_seed: 42
 
 # --- Input Data ---
 paths:
-  adata_input: "resources/embeddings/midpoint_sn_sn_3000.h5ad"
+  adata_input: "resources/embeddings/midpoint_sn_concat_3000.h5ad"
   model_dir: "no_model_given" # Assumed path - UPDATE if different
 
 # --- Output Paths ---
 output_paths:
   # Where to save the anndata with the CancerFoundation embedding
   adata_embedded_dir: "resources/embeddings/"
-  adata_embedded_filename: "midpoint_sn_sn_3000.h5ad"
+  adata_embedded_filename: "midpoint_sn_concat_3000.h5ad"
 
   # Where to save the final anndata with clustering, etc.
   adata_clustered_dir: "results/clustered_data/"
-  adata_clustered_filename: "SSN(Train)_to_SN(Test)_3000HVG_CellState_X_scGPT_ipca_cluster.h5ad"
+  adata_clustered_filename: "SN(Train)_to_Combined(Test)_3000_Genes_CellState_X_scGPT_ipca_cluster.h5ad"
 
   # General output directories
   scanpy_plots_output: "concat/results/scanpy_plots/"
@@ -32,15 +32,12 @@ data_keys:
   embedding_key_model: "iPCA_scGPT"
   # Ground truth annotation for clustering evaluation (needs to exist in adata.obs)
   # Check your specific AnnData file for the correct key (e.g., 'cell_state', 'cell_type_fine')
-  ground_truth_key: "cell_state" 
+  ground_truth_key: "SAMPLES_JOINT"
   # Batch key for visualization and scIB
-  batch_key: "donor_id" # "donor_id" # "donor_id" when using sn_tumor cells otherwise "Sample"
+  batch_key: "SAMPLES_JOINT" # "donor_id" # "donor_id" when using sn_tumor cells otherwise "Sample"
   # Timepoint key for interpretability analysis
-  timepoint_key: "Stage_Code" # DX, PTX
+  timepoint_key: "STAGE_CODE_JOINT" # DX, PTX
   # Value representing the "pre-treatment" or baseline state in timepoint_key
-  timepoint_pre: "DX"
-  # Value representing the "post-treatment" state in timepoint_key
-  timepoint_post: "PTX"
 
 # --- Embedding Generation (CancerFoundation) ---
 embedding:
@@ -139,8 +136,8 @@ benchmarking:
   embedding_keys:
     # Must include the main model embedding
     - "iPCA_scGPT"
-    - "X_umap_scGPT"
-    - "X_pca_scGPT"
+    # - "X_umap_scGPT"
+    # - "X_pca_scGPT"
     # Add others for comparison if available/calculated (e.g., PCA)
     # - "X_harmony"
   # Use Leiden clustering labels for NMI/ARI calculation within scIB Bio Conservation
