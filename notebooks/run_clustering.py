@@ -721,7 +721,7 @@ for rep in ['CancerGPT', 'X_pca', 'X_umap']:
     sc.pp.neighbors(embed_adata, use_rep=rep)
     sc.tl.umap(embed_adata)
     fig = sc.pl.umap(embed_adata, 
-            color=["cell2", "sample"], 
+            color=["cell2", batch_key], 
             frameon=False, 
             palette=sc.pl.palettes.default_20,
             legend_loc=None,
@@ -734,7 +734,7 @@ batch_correction = BatchCorrection(pcr_comparison=False)
 
 bm = Benchmarker(
     embed_adata,
-    batch_key="sample",
+    batch_key=batch_key,
     label_key="cell2",
     embedding_obsm_keys=['CancerGPT', 'X_pca', 'X_umap'],
     n_jobs=1,

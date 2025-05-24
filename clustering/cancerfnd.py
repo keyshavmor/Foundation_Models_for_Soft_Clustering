@@ -278,7 +278,8 @@ print("="*50 + "\n")
 
 embeddings = adata.obsm[model_embedding_key]
 cluster_results = {} # To store labels temporarily if needed
-
+# ToDo: Add yaml key to choose which type of method to use to determine number of clusters:
+# Empirically: Seems like Silhoutte scores significantly outperform AIC/BIC
 # --- Gaussian Mixture Model (GMM) ---
 optimal_n_clusters = None
 if cluster_cfg['use_gmm']:
